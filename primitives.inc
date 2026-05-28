@@ -31,6 +31,12 @@
     do_rsb:
         state = COMPILE;
         NEXT();
+    do_state:
+        dpush((cell)state);
+        NEXT();
+    do_here:
+        dpush((cell)here);
+        NEXT();
 
     // Stack manipulation
     // ------------------
@@ -258,6 +264,18 @@
         NEXT();
     do_store:
         *(cell *)*(dsp - 1) = *(dsp - 2);
+        dsp -= 2;
+        NEXT();
+    do_char_comma:
+        *here = (char)*(dsp - 1);
+        here++;
+        dsp--;
+        NEXT();
+    do_char_fetch:
+        *(dsp - 1) = (cell)*((uint8_t *)*(dsp - 1));
+        NEXT();
+    do_char_store:
+        *(uint8_t *)*(dsp - 1) = (char)*(dsp - 1);
         dsp -= 2;
         NEXT();
 

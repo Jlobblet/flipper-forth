@@ -350,6 +350,8 @@ run(void) {
     word_t *w_lsb = create_header("[", 1, &&do_lsb);
     w_set_immediate(w_lsb);
     create_header("]", 1, &&do_rsb);
+    create_header("STATE", 5, &&do_state);
+    create_header("HERE", 4, &&do_here);
 
     // Stack manipulation
     create_header(".", 1, &&do_dot);
@@ -412,6 +414,9 @@ run(void) {
     create_header("ALLOT", 5, &&do_allot);
     create_header("@", 1, &&do_fetch);
     create_header("!", 1, &&do_store);
+    create_header("C,", 2, &&do_char_comma);
+    create_header("C@", 2, &&do_char_fetch);
+    create_header("C!", 2, &&do_char_store);
 
     // Control flow
     word_t *w_branch = create_header("BRANCH", 6, &&do_branch);

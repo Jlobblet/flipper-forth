@@ -13,6 +13,7 @@
 ALIAS NB. \
 
 : ? ( addr -- ) @ . ;
+: C? ( addr -- ) C@ . ;
 : CELLS ( n -- n_c ) CELL * ;
 
 : VARIABLE! CREATE , ;
