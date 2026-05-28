@@ -1,0 +1,18 @@
+{
+    "cSpell.words": [
+        "BINOP",
+        "CMPBINOP",
+        "DOCOL",
+        "dpop",
+        "dpush",
+        "dstack",
+        "FBOOL",
+        "rpop",
+        "rpush",
+        "rstack",
+        "SBINOP",
+        "scell",
+        "semico",
+        "tokenised"
+    ]
+}
