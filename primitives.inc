@@ -241,6 +241,12 @@
     do_immediate:
         w_set_immediate(latest);
         NEXT();
+    do_forget:
+        WORD("Expected name after FORGET\n");
+        w = find(tok, tok_len);
+        if (!w) { printf("? %.*s\n", tok_len, tok); NEXT(); }
+        w_set_hidden(w);
+        NEXT();
 
     // Memory
     // ------
