@@ -23,6 +23,16 @@ ALIAS NB. \
 : CONSTANT CREATE , DOES> @ ;
 : ARRAY CREATE CELLS ALLOT DOES> SWAP CELLS + ;
 
+\ Print a string immediately
+: ." POSTPONE S" STATE @ IF POSTPONE TYPE ELSE TYPE THEN ; IMMEDIATE
+
+\ Some string printing utilities now
+0X20 CONSTANT BL ;
+: SPACE BL EMIT ;
+: CR 0XA EMIT ;
+\ Print n spaces
+: SPACES ( n -- ) BEGIN DUP WHILE SPACE 1 - REPEAT DROP ;
+
 : 0= ( n -- ? ) 0 = ;
 : 0< ( n -- ? ) 0 SWAP < ;
 : 0> ( n -- ? ) 0 SWAP > ;

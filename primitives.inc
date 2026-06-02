@@ -17,6 +17,7 @@
         NEXT();
 
 #define WORD(e) do { if (!word(&tok, &tok_len, e)) goto xt_interpret; } while(0)
+#define PTR_ALIGN() do { while ((uintptr_t)ptr % sizeof(cell)) ptr++; } while(0)
 
     // Interpreter
     // -----------
@@ -131,6 +132,48 @@
     do_gte: CMPBINOP(>=)
     do_eq: CMPBINOP(==)
     do_neq: CMPBINOP(!=)
+
+    // Strings
+    // -------
+    do_s_quo:
+        parse('"', &a, &b);
+        if (state == COMPILE) {
+            // Compile the (S") word, then inline the data as a counted string
+            comma((cell)w_s_quo_runtime);
+            comma(b);
+            memcpy(here, (char *)a, b);
+            here += b;
+            align();
+        } else {
+            // Copy into the string buffer and push addr/len
+            if (string_pad + b > string_pad_buf + STRING_PAD_SIZE)
+                string_pad = string_pad_buf;
+
+            memcpy(string_pad, (char *)a, b);
+            dpush((cell)string_pad);
+            dpush(b);
+            string_pad += b;
+        }
+        NEXT();
+    do_s_quo_runtime:
+        b = *IP++;
+        dpush((cell)IP);
+        dpush(b);
+        // Align IP
+        ptr =  (uint8_t *)IP + b;
+        PTR_ALIGN();
+        IP = (cell *)ptr;
+        NEXT();
+    // ( c -- )
+    do_emit:
+        putchar((int)(unsigned char)dpop());
+        NEXT();
+    // ( addr length -- )
+    do_type:
+        a = dpop();
+        b = dpop();
+        printf("%.*s", (int)a, (char *)b);
+        NEXT();
 
     // Word defining
     // -------------
@@ -274,6 +317,13 @@
                 printf(" %" PRIdPTR, (scell)*p++);
             else if (w == w_branch || w == w_0branch)
                 printf(" [%+ld]", (long)((cell *)*p++ - q));
+            else if (w == w_s_quo_runtime) {
+                a = *p++;
+                printf(" \"%.*s\"", (int)a, (char *)p);
+                ptr = (uint8_t *)p + a;
+                PTR_ALIGN();
+                p = (cell *)ptr;
+            }
         }
         printf(" ;");
         if (w_is_immediate(w)) printf(" IMMEDIATE");

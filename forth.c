@@ -10,6 +10,7 @@
 #define DICT_SIZE 32768
 #define DSTACK_SIZE 256
 #define RSTACK_SIZE 256
+#define STRING_PAD_SIZE 1024
 
 const char prelude[] = {
 #embed "prelude.f"
@@ -116,6 +117,10 @@ cell dstack[DSTACK_SIZE];
 cell rstack[RSTACK_SIZE];
 cell *dsp = dstack;
 cell *rsp = rstack;
+
+// The string pad is used for storing strings that are currently in use
+char string_pad_buf[STRING_PAD_SIZE];
+char *string_pad = string_pad_buf;
 
 // The input buffer stores each line before it is tokenised; input_pos is the current
 // pointer into it.
@@ -361,7 +366,7 @@ run(void) {
     cell a, b, *p, *q;
     scell sa, sb;
     char c, *tok;
-    uint8_t tok_len;
+    uint8_t tok_len, *ptr;
     word_t *w;
 
     // Interpreter
@@ -401,6 +406,13 @@ run(void) {
     create_header(">=", 2, &&do_gte);
     create_header("=", 1, &&do_eq);
     create_header("<>", 2, &&do_neq);
+
+    // Strings
+    word_t *w_s_quo = create_header("S\"", 2, &&do_s_quo);
+    w_set_immediate(w_s_quo);
+    word_t *w_s_quo_runtime = create_header("(S\")", 4, &&do_s_quo_runtime);
+    create_header("EMIT", 4, &&do_emit);
+    create_header("TYPE", 4, &&do_type);
 
     // Word defining
     word_t *w_docol = create_header("DOCOL", 5, &&do_docol);
