@@ -266,6 +266,27 @@ word(char **tok, uint8_t *tok_len, const char *error) {
     return F_TRUE;
 }
 
+// The Forth word PARSE
+void
+parse(char delim, cell *addr, cell *length) {
+    if (!input_top) {
+        *addr = 0;
+        *length = 0;
+        return;
+    }
+
+    const char *data = input_top->data;
+    size_t pos = input_top->pos;
+    size_t len = input_top->len;
+    size_t start = pos;
+    while (pos < len && data[pos] != delim) pos++;
+    *length = pos - start;
+    // Advance past the delimiter if found
+    if (pos < len) pos++;
+    input_top->pos = pos;
+    *addr = (cell)data + start;
+}
+
 // C helpers, no VM interactions
 
 // Align here to cell (= pointer) size again
@@ -339,7 +360,7 @@ run(void) {
     cell *W;
     cell a, b, *p, *q;
     scell sa, sb;
-    char *tok;
+    char c, *tok;
     uint8_t tok_len;
     word_t *w;
 

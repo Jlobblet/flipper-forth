@@ -399,23 +399,9 @@
     // Parsing
     // -------
     // ( delim -- addr len )
-    do_parse: {
-        char delim = (char)dpop();
-        if (!input_top) {
-            dpush(0);
-            dpush(0);
-            NEXT();
-        }
-        const char *data = input_top->data;
-        size_t pos = input_top->pos;
-        size_t len = input_top->len;
-        size_t start = pos;
-        while (pos < len && data[pos] != delim) pos++;
-        size_t tok_len = pos - start;
-        // Advance past the delimiter if found
-        if (pos < len) pos++;
-        input_top->pos = pos;
-        dpush((cell)(data + start));
-        dpush(tok_len);
+    do_parse:
+        c = (char)dpop();
+        parse(c, &a, &b);
+        dpush(a);
+        dpush(b);
         NEXT();
-    }
