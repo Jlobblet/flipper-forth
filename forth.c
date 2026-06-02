@@ -382,6 +382,7 @@ run(void) {
     create_header(">", 1, &&do_gt);
     create_header(">=", 2, &&do_gte);
     create_header("=", 1, &&do_eq);
+    create_header("<>", 2, &&do_neq);
 
     // Word defining
     word_t *w_docol = create_header("DOCOL", 5, &&do_docol);
