@@ -378,6 +378,7 @@ run(void) {
 
     // Stack manipulation
     create_header(".", 1, &&do_dot);
+    create_header(".X", 2, &&do_dot_x);
     create_header(".S", 2, &&do_print_stack);
     create_header("DUP", 3, &&do_dup);
     create_header("DROP", 4, &&do_drop);

@@ -40,6 +40,10 @@
         sa = (scell)dpop();
         printf("%" PRIdPTR "\n", sa);
         NEXT();
+    // ( a -- )
+    do_dot_x:
+        a = dpop();
+        printf("0X%" PRIXPTR "\n", a);
     // ( -- )
     do_print_stack:
         for (cell *p = dstack; p < dsp; p++) printf("%" PRIdPTR "\n", (scell)*p);
