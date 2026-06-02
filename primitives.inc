@@ -25,14 +25,8 @@
     do_execute:
         W = (cell *)dpop();
         goto *((word_t *)W)->code;
-    do_lsb:
-        state = INTERPRET;
-        NEXT();
-    do_rsb:
-        state = COMPILE;
-        NEXT();
     do_state:
-        dpush((cell)state);
+        dpush((cell)&state);
         NEXT();
     do_here:
         dpush((cell)here);

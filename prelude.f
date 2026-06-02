@@ -5,6 +5,8 @@
 \ Now we have comments!
 
 \ Words for entering compile mode for immediate execution
+: [ 1 STATE ! ; IMMEDIATE
+: ] 0 STATE ! ;
 : [: :NONAME ; IMMEDIATE
 : ;] POSTPONE EXIT POSTPONE [ EXECUTE ; IMMEDIATE
 

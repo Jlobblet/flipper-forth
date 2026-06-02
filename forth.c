@@ -368,9 +368,6 @@ run(void) {
     word_t *w_halt = create_header("HALT", 4, &&do_halt);
     w_set_hidden(w_halt);
     create_header("EXECUTE", 7, &&do_execute);
-    word_t *w_lsb = create_header("[", 1, &&do_lsb);
-    w_set_immediate(w_lsb);
-    create_header("]", 1, &&do_rsb);
     create_header("STATE", 5, &&do_state);
     create_header("HERE", 4, &&do_here);
 
