@@ -246,7 +246,7 @@ parse_number(const char *s, uint8_t len, scell *out) {
     memcpy(buf, s, len);
     buf[len] = '\0';
     char *end;
-    long n = strtol(buf, &end, 10);
+    long n = strtol(buf, &end, 0);
     if (*end != '\0') return F_FALSE;
     *out = (scell)n;
     return F_TRUE;
