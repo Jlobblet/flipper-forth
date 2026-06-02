@@ -137,6 +137,7 @@
     // -------
     do_s_quo:
         parse('"', &a, &b);
+        if (b > 0 && isspace(*(char *)a)) { a++; b--; }
         if (state == COMPILE) {
             // Compile the (S") word, then inline the data as a counted string
             comma((cell)w_s_quo_runtime);
