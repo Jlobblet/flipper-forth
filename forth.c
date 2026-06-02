@@ -337,7 +337,7 @@ run(void) {
 
     cell *IP;
     cell *W;
-    cell a, b;
+    cell a, b, *p, *q;
     scell sa, sb;
     char *tok;
     uint8_t tok_len;
@@ -407,6 +407,7 @@ run(void) {
     w_set_immediate(w_postpone);
     create_header("IMMEDIATE", 9, &&do_immediate);
     create_header("FORGET", 6, &&do_forget);
+    create_header("SEE", 3, &&do_see);
 
     // Memory
     create_header("ALIGN", 5, &&do_align);

@@ -247,6 +247,44 @@
         if (!w) { printf("? %.*s\n", tok_len, tok); NEXT(); }
         w_set_hidden(w);
         NEXT();
+    do_see:
+        WORD("Expected name after SEE\n");
+        w = find(tok, tok_len);
+        if (!w) { printf("? %.*s\n", tok_len, tok); NEXT(); }
+
+        printf(": %.*s", w->length, w->name);
+        if (w->code != w_docol->code) {
+            // Not a colon word: nothing threaded to walk.
+            if (w->does_code)
+                printf("  ( CREATE/DOES> word )");
+            else
+                printf("  ( primitive )");
+            if (w_is_immediate(w))
+                printf(" IMMEDIATE");
+            if (w_is_hidden(w))
+                printf(" ( hidden )");
+            printf("\n");
+            NEXT();
+        }
+
+        // Walk the threaded body until EXIT.
+        p = q = (cell *)w->body;
+        while (*p != (cell)w_exit) {
+            w = (word_t *)*p++;
+            if (!w) {
+                printf(" <null>");
+                continue;
+            }
+            printf(" %.*s", w->length, w->name);
+            if (w == w_lit)
+                printf(" %" PRIdPTR, (scell)*p++);
+            else if (w == w_branch || w == w_0branch)
+                printf(" [%+ld]", (long)((cell *)*p++ - q));
+        }
+        printf(" ;");
+        if (w_is_immediate(w)) printf(" IMMEDIATE");
+        printf("\n");
+        NEXT();
 
     // Memory
     // ------
