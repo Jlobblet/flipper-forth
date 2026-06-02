@@ -411,6 +411,7 @@ run(void) {
     word_t *w_s_quo = create_header("S\"", 2, &&do_s_quo);
     w_set_immediate(w_s_quo);
     word_t *w_s_quo_runtime = create_header("(S\")", 4, &&do_s_quo_runtime);
+    w_set_hidden(w_s_quo_runtime);
     create_header("EMIT", 4, &&do_emit);
     create_header("TYPE", 4, &&do_type);
 
