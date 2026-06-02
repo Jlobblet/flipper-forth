@@ -408,6 +408,7 @@ run(void) {
     create_header("IMMEDIATE", 9, &&do_immediate);
     create_header("FORGET", 6, &&do_forget);
     create_header("SEE", 3, &&do_see);
+    create_header("WORDS", 5, &&do_words);
 
     // Memory
     create_header("ALIGN", 5, &&do_align);

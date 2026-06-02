@@ -285,6 +285,16 @@
         if (w_is_immediate(w)) printf(" IMMEDIATE");
         printf("\n");
         NEXT();
+    do_words:
+        w = latest;
+        while (w) {
+            printf("%.*s", w->length, w->name);
+            if (w_is_immediate(w)) printf(" (IMMEDIATE)");
+            if (w_is_hidden(w)) printf(" ( hidden )");
+            printf("\n");
+            w = w->link;
+        }
+        NEXT();
 
     // Memory
     // ------
