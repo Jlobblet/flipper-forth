@@ -167,6 +167,7 @@
     do_neq: CMPBINOP(!=)
 
     // Floating-point arithmetic
+    // -------------------------
     do_fplus: FBINOP(+)
     do_fminus: FBINOP(-)
     do_fmul: FBINOP(*)
