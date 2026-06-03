@@ -436,7 +436,7 @@
         *(dsp - 1) = (cell)*((uint8_t *)*(dsp - 1));
         NEXT();
     do_char_store:
-        *(uint8_t *)*(dsp - 1) = (char)*(dsp - 1);
+        *(uint8_t *)*(dsp - 1) = (char)*(dsp - 2);
         dsp -= 2;
         NEXT();
 
