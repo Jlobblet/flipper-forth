@@ -39,10 +39,10 @@ typedef void *code_t;
 // Type to use for the floating-point stack and operands
 #ifdef DOUBLE_AS_REAL
 typedef double real;
-#define PRIREAL "lf"
+#define PRIREAL ".16g"
 #else
 typedef float real;
-#define PRIREAL "f"
+#define PRIREAL ".7g"
 #endif
 
 // Used by the outer interpreter to decide what to do
