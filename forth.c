@@ -19,6 +19,7 @@ const char prelude[] = {
 };
 
 // Types
+// -----
 
 // We use uintptr_t as cell type because it means that we can store both
 // pointers and integers in the same size, which is very convenient
@@ -112,6 +113,7 @@ typedef struct input_source {
 } input_source_t;
 
 // Globals and stack operations
+// ----------------------------
 
 // The dictionary is initially all zeroed out and grows start-to-end in contiguous memory.
 // Here always points to the next free byte to write to. latest points to the most recent word
@@ -134,12 +136,6 @@ real *fsp = fstack;
 // The string pad is used for storing strings that are currently in use
 char string_pad_buf[STRING_PAD_SIZE];
 char *string_pad = string_pad_buf;
-
-// The input buffer stores each line before it is tokenised; input_pos is the current
-// pointer into it.
-
-input_source_t *input_top = nullptr;
-char stdin_buf[1024];
 
 #ifdef BOUNDSCHECK
 #define PUSH(name, p, stack, stack_type, size)\
@@ -178,6 +174,15 @@ char stdin_buf[1024];
 STACK_OPS(dpush, dpop, dsp, dstack, cell, DSTACK_SIZE)
 STACK_OPS(rpush, rpop, rsp, rstack, cell, RSTACK_SIZE)
 STACK_OPS(fpush, fpop, fsp, fstack, real, FSTACK_SIZE)
+
+// I/O
+// ---
+
+// The input buffer stores each line before it is tokenised; input_pos is the current
+// pointer into it.
+
+input_source_t *input_top = nullptr;
+char stdin_buf[1024];
 
 void
 push_string_input(const char *s, size_t len) {
@@ -328,6 +333,7 @@ parse(char delim, cell *addr, cell *length) {
 }
 
 // C helpers, no VM interactions
+// -----------------------------
 
 // Align here to cell (= pointer) size again
 void
@@ -396,6 +402,7 @@ find(const char *name, uint8_t len) {
 }
 
 // Run the REPL
+// ------------
 
 void
 run(void) {
