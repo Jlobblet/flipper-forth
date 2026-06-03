@@ -10,6 +10,7 @@
 #define DICT_SIZE 32768
 #define DSTACK_SIZE 256
 #define RSTACK_SIZE 256
+#define FSTACK_SIZE 32
 #define STRING_PAD_SIZE 1024
 
 const char prelude[] = {
@@ -33,6 +34,15 @@ typedef intptr_t scell;
 
 // code_t is used for storing pointers to code rather than a raw void *
 typedef void *code_t;
+
+// Type to use for the floating-point stack and operands
+#ifdef DOUBLE_AS_REAL
+typedef double real;
+#define PRIREAL "lf"
+#else
+typedef float real;
+#define PRIREAL "f"
+#endif
 
 // Used by the outer interpreter to decide what to do
 typedef enum state {
@@ -115,8 +125,10 @@ word_t *latest = nullptr;
 
 cell dstack[DSTACK_SIZE];
 cell rstack[RSTACK_SIZE];
+real fstack[FSTACK_SIZE];
 cell *dsp = dstack;
 cell *rsp = rstack;
+real *fsp = fstack;
 
 // The string pad is used for storing strings that are currently in use
 char string_pad_buf[STRING_PAD_SIZE];
@@ -129,41 +141,42 @@ input_source_t *input_top = nullptr;
 char stdin_buf[1024];
 
 #ifdef BOUNDSCHECK
-#define PUSH(name, p, stack, size)\
+#define PUSH(name, p, stack, stack_type, size)\
     void\
-    name(cell d) {\
+    name(stack_type d) {\
         if (p - stack >= size) abort();\
         *p++ = d;\
     }
 
-#define POP(name, p, stack)\
-    cell\
+#define POP(name, p, stack, stack_type)\
+    stack_type\
     name(void) {\
         p--;\
         if (p < stack) abort();\
         return *p;\
     }
 #else
-#define PUSH(name, p, stack, size)\
+#define PUSH(name, p, stack, stack_type, size)\
     void\
-        name(cell d) {\
+        name(stack_type d) {\
         *p++ = d;\
     }
 
-    #define POP(name, p, stack)\
-    cell\
+    #define POP(name, p, stack, stack_type)\
+    stack_type\
     name(void) {\
         p--;\
         return *p;\
     }
 #endif
 
-#define STACK_OPS(push_name, pop_name, p, stack, size)\
-    PUSH(push_name, p, stack, size)\
-    POP(pop_name, p, stack)
+#define STACK_OPS(push_name, pop_name, p, stack, stack_type, size)\
+    PUSH(push_name, p, stack, stack_type, size)\
+    POP(pop_name, p, stack, stack_type)
 
-STACK_OPS(dpush, dpop, dsp, dstack, DSTACK_SIZE)
-STACK_OPS(rpush, rpop, rsp, rstack, RSTACK_SIZE)
+STACK_OPS(dpush, dpop, dsp, dstack, cell, DSTACK_SIZE)
+STACK_OPS(rpush, rpop, rsp, rstack, cell, RSTACK_SIZE)
+STACK_OPS(fpush, fpop, fsp, fstack, real, FSTACK_SIZE)
 
 void
 push_string_input(const char *s, size_t len) {
@@ -258,6 +271,23 @@ parse_number(const char *s, uint8_t len, scell *out) {
 }
 
 cell
+parse_real(const char *s, uint8_t len, real *out) {
+    char buf[32];
+    if (len >= sizeof(buf)) return F_FALSE;
+    memcpy(buf, s, len);
+    buf[len] = '\0';
+    char *end;
+#ifdef DOUBLE_AS_REAL
+    double r = strtod(buf, &end);
+#else
+    float r = strtof(buf, &end);
+#endif
+    if (end == buf || *end != '\0') return F_FALSE;
+    *out = (real)r;
+    return F_TRUE;
+}
+
+cell
 word(char **tok, uint8_t *tok_len, const char *error) {
     while (!parse_token(tok, tok_len)) {
         if (!refill()) {
@@ -331,6 +361,14 @@ allot(cell n) {
     here += n;
 }
 
+// Store real-sized data into the dictionary and advance
+void
+fcomma(real value) {
+    align();
+    *(real *)here = value;
+    here += sizeof(real);
+}
+
 cell
 name_matches(const char *n1, const char *n2, uint8_t len) {
     for (int i = 0; i < len; i++) {
@@ -365,6 +403,7 @@ run(void) {
     cell *W;
     cell a, b, *p, *q;
     scell sa, sb;
+    real fa, fb;
     char c, *tok;
     uint8_t tok_len, *ptr;
     word_t *w;
@@ -380,6 +419,8 @@ run(void) {
     create_header(".", 1, &&do_dot);
     create_header(".X", 2, &&do_dot_x);
     create_header(".S", 2, &&do_print_stack);
+    create_header("F.", 2, &&do_fdot);
+    create_header("F.S", 3, &&do_print_fstack);
     create_header("DUP", 3, &&do_dup);
     create_header("DROP", 4, &&do_drop);
     create_header("SWAP", 4, &&do_swap);
@@ -394,6 +435,8 @@ run(void) {
     create_header(">R", 2, &&do_to_rstack);
     create_header("R>", 2, &&do_from_rstack);
     create_header("R@", 2, &&do_fetch_rstack);
+    create_header("S>F", 3, &&do_to_fstack);
+    create_header("F>S", 3, &&do_from_fstack);
     create_header("DEPTH", 5, &&do_depth);
 
     // Arithmetic
@@ -407,6 +450,18 @@ run(void) {
     create_header(">=", 2, &&do_gte);
     create_header("=", 1, &&do_eq);
     create_header("<>", 2, &&do_neq);
+
+    // Floating-point arithmetic
+    create_header("F+", 2, &&do_fplus);
+    create_header("F-", 1, &&do_fminus);
+    create_header("F*", 1, &&do_fmul);
+    create_header("F/", 1, &&do_fdiv);
+    create_header("F<", 1, &&do_flt);
+    create_header("F<=", 2, &&do_flte);
+    create_header("F>", 1, &&do_fgt);
+    create_header("F>=", 2, &&do_fgte);
+    create_header("F=", 1, &&do_feq);
+    create_header("F<>", 2, &&do_fneq);
 
     // Strings
     word_t *w_s_quo = create_header("S\"", 2, &&do_s_quo);
@@ -422,6 +477,8 @@ run(void) {
     word_t *w_exit = create_header("EXIT", 4, &&do_exit);
     word_t *w_lit = create_header("LIT", 3, &&do_lit);
     w_set_hidden(w_lit);
+    word_t *w_flit = create_header("FLIT", 4, &&do_flit);
+    w_set_hidden(w_flit);
     create_header("CHAR", 4, &&do_char);
     create_header("LIT-COMPILE", 11, &&do_lit_compile);
     create_header("'", 1, &&do_tick);
@@ -521,6 +578,16 @@ run(void) {
                 comma((cell)sa);
             } else {
                 dpush(sa);
+            }
+            goto xt_interpret;
+        }
+
+        if (parse_real(tok, tok_len, &fa)) {
+            if (state == COMPILE) {
+                comma((cell)w_flit);
+                fcomma(fa);
+            } else {
+                fpush(fa);
             }
             goto xt_interpret;
         }

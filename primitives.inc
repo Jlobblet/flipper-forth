@@ -16,6 +16,18 @@
         dpush(FBOOL(sa op sb));\
         NEXT();
 
+#define FBINOP(op)\
+        fb = fpop();\
+        fa = fpop();\
+        fpush(fa op fb);\
+        NEXT();
+
+#define FCMPBINOP(op)\
+        fb = fpop();\
+        fa = fpop();\
+        dpush(FBOOL(fa op fb));\
+        NEXT();
+
 #define WORD(e) do { if (!word(&tok, &tok_len, e)) goto xt_interpret; } while(0)
 #define PTR_ALIGN() do { while ((uintptr_t)ptr % sizeof(cell)) ptr++; } while(0)
 
@@ -47,6 +59,15 @@
     // ( -- )
     do_print_stack:
         for (cell *p = dstack; p < dsp; p++) printf("%" PRIdPTR "\n", (scell)*p);
+        NEXT();
+    // (F: a -- )
+    do_fdot:
+        fa = fpop();
+        printf("%" PRIREAL "\n", fa);
+        NEXT();
+    // ( -- )
+    do_print_fstack:
+        for (real *p = fstack; p < fsp; p++) printf("%" PRIREAL "\n", *p);
         NEXT();
     // ( a -- a a )
     do_dup:
@@ -119,6 +140,14 @@
     do_fetch_rstack:
         dpush(*(rsp - 1));
         NEXT();
+    // ( a -- ) (F: -- a )
+    do_to_fstack:
+        fpush((real)(scell)dpop());
+        NEXT();
+    do_from_fstack:
+    // ( -- a ) (F: a -- )
+        dpush((cell)(scell)fpop());
+        NEXT();
     // ( -- a )
     do_depth:
         dpush(dsp - dstack);
@@ -136,6 +165,18 @@
     do_gte: CMPBINOP(>=)
     do_eq: CMPBINOP(==)
     do_neq: CMPBINOP(!=)
+
+    // Floating-point arithmetic
+    do_fplus: FBINOP(+)
+    do_fminus: FBINOP(-)
+    do_fmul: FBINOP(*)
+    do_fdiv: FBINOP(/)
+    do_flt: FCMPBINOP(<)
+    do_flte: FCMPBINOP(<=)
+    do_fgt: FCMPBINOP(>)
+    do_fgte: FCMPBINOP(>=)
+    do_feq: FCMPBINOP(=)
+    do_fneq: FCMPBINOP(!=)
 
     // Strings
     // -------
@@ -197,6 +238,14 @@
         NEXT();
     do_lit:
         dpush(*IP++);
+        NEXT();
+    do_flit:
+        ptr = (uint8_t *)IP;
+        fa = *(real *)ptr;
+        fpush(fa);
+        ptr += sizeof(real);
+        PTR_ALIGN();
+        IP = (cell *)ptr;
         NEXT();
     do_char:
         WORD(nullptr);
