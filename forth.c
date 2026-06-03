@@ -458,15 +458,15 @@ run(void) {
 
     // Floating-point arithmetic
     create_header("F+", 2, &&do_fplus);
-    create_header("F-", 1, &&do_fminus);
-    create_header("F*", 1, &&do_fmul);
-    create_header("F/", 1, &&do_fdiv);
-    create_header("F<", 1, &&do_flt);
-    create_header("F<=", 2, &&do_flte);
-    create_header("F>", 1, &&do_fgt);
-    create_header("F>=", 2, &&do_fgte);
-    create_header("F=", 1, &&do_feq);
-    create_header("F<>", 2, &&do_fneq);
+    create_header("F-", 2, &&do_fminus);
+    create_header("F*", 2, &&do_fmul);
+    create_header("F/", 2, &&do_fdiv);
+    create_header("F<", 2, &&do_flt);
+    create_header("F<=", 3, &&do_flte);
+    create_header("F>", 2, &&do_fgt);
+    create_header("F>=", 3, &&do_fgte);
+    create_header("F=", 2, &&do_feq);
+    create_header("F<>", 3, &&do_fneq);
 
     // Bitwise combinators
     create_header("AND", 3, &&do_and);
