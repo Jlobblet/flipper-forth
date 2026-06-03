@@ -1,0 +1,18 @@
+App(
+    appid="flipper_forth",
+    name="Forth",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="flipper_forth_entry",
+    stack_size=1 * 1024,
+    cdefines=[
+      "FLIPPER",
+    ],
+    order=10,
+    fap_private_libs=[
+        Lib(
+            name="forth",
+            cflags=["-std=gnu2x"],
+            sources=["forth.c"],
+        ),
+    ],
+)

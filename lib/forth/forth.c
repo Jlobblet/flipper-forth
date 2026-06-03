@@ -1,11 +1,29 @@
+#include "forth.h"
 #include <ctype.h>
 #include <inttypes.h>
-#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/errno.h>
+
+#ifdef FLIPPER
+#include <furi.h>
+#include <furi_hal_serial.h>
+#include <furi_hal_serial_control.h>
+#else
+#include <stddef.h>
+#include <stdlib.h>
+#endif
+
+#if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 202311L
+#include <stdalign.h>
+#define nullptr NULL
+#include "prelude.h"
+#else
+const char prelude[] = {
+#embed "prelude.f"
+};
+#endif
 
 #define NAME_MAX 16
 #define DICT_SIZE 32768
@@ -14,9 +32,7 @@
 #define FSTACK_SIZE 32
 #define STRING_PAD_SIZE 1024
 
-const char prelude[] = {
-#embed "prelude.f"
-};
+
 
 // Types
 // -----
@@ -177,6 +193,56 @@ STACK_OPS(fpush, fpop, fsp, fstack, real, FSTACK_SIZE)
 
 // I/O
 // ---
+
+// We need to define our own I/O operations since on the Flipper we cannot use
+// stdin and stdout the same way. We will have to use Furi. However, to keep
+// compat for running not on the Flipper (as I have become fond of this outside
+// of the Flipper part) we want to wrap all the operations so both targets are
+// supported.
+
+#ifdef FLIPPER
+// On Flipper, we need to bind the serial port for I/O, so we store a global for it
+
+static FuriHalSerialHandle* serial;
+
+#endif
+
+// These predeclarations ensure the signature is consistent throughout implementations.
+
+static void
+forth_write(const char *buf, size_t n);
+
+static int
+forth_read_line(char *buf, size_t max);
+
+#ifdef FLIPPER
+static void
+forth_write(const char *buf, size_t n) {
+
+}
+
+static int
+forth_read_line(char *buf, size_t max) {
+
+}
+
+#else
+static void
+forth_write(const char *buf, size_t n) {
+    fwrite(buf, 1, n, stdout);
+}
+
+static int
+forth_read_line(char *buf, size_t max) {
+    return fgets(buf, (int)max, stdin) ? (int)strnlen(buf, max) : -1;
+}
+#endif
+
+// Helper for a single char
+static void
+forth_putc(char c) {
+    forth_write(&c, 1);
+}
 
 // The input buffer stores each line before it is tokenised; input_pos is the current
 // pointer into it.
@@ -562,13 +628,19 @@ run(void) {
         goto *((word_t *)W)->code; \
     } while(0)
 
+#ifdef FLIPPER
+    serial = furi_hal_serial_control_acquire(FuriHalSerialIdUsart);
+    furi_hal_serial_init(serial, 115200);
+#endif
+
     push_stdin_input();
     push_string_input(prelude, sizeof(prelude));
     goto xt_interpret; // kick off
 
     #include "primitives.inc"
 
-    xt_interpret: {
+
+xt_interpret: {
         char *tok;
         uint8_t tok_len;
 
@@ -618,6 +690,8 @@ run(void) {
 
 int
 main(int argc, char *argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
     run();
     return EXIT_SUCCESS;
 }
