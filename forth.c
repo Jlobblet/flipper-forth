@@ -468,6 +468,12 @@ run(void) {
     create_header("F=", 1, &&do_feq);
     create_header("F<>", 2, &&do_fneq);
 
+    // Bitwise combinators
+    create_header("AND", 3, &&do_and);
+    create_header("OR", 2, &&do_or);
+    create_header("XOR", 3, &&do_xor);
+    create_header("INVERT", 6, &&do_invert);
+
     // Strings
     word_t *w_s_quo = create_header("S\"", 2, &&do_s_quo);
     w_set_immediate(w_s_quo);

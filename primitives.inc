@@ -179,6 +179,14 @@
     do_feq: FCMPBINOP(=)
     do_fneq: FCMPBINOP(!=)
 
+    // Bitwise combinators
+    do_and: BINOP(&)
+    do_or: BINOP(|)
+    do_xor: BINOP(^)
+    do_invert:
+        dpush(~dpop());
+        NEXT();
+
     // Strings
     // -------
     do_s_quo:

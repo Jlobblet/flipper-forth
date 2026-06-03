@@ -46,6 +46,10 @@ ALIAS +1 1+
 : NEGATE ( n -- -n ) 0 SWAP - ;
 : ABS ( n -- |n| ) DUP 0 < IF NEGATE THEN ;
 
+\ Constants for Boolean flags
+0 CONSTANT F
+-1 CONSTANT T
+
 : SQUARE ( n -- n^2 ) DUP * ;
 : QUAD ( n -- n^4 ) SQUARE SQUARE ;
 
