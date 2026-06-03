@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/errno.h>
 
 #define NAME_MAX 16
 #define DICT_SIZE 32768
@@ -264,7 +265,9 @@ parse_number(const char *s, uint8_t len, scell *out) {
     memcpy(buf, s, len);
     buf[len] = '\0';
     char *end;
+    errno = 0;
     long n = strtol(buf, &end, 0);
+    if (errno) return F_FALSE;
     if (*end != '\0') return F_FALSE;
     *out = (scell)n;
     return F_TRUE;
@@ -277,11 +280,13 @@ parse_real(const char *s, uint8_t len, real *out) {
     memcpy(buf, s, len);
     buf[len] = '\0';
     char *end;
+    errno = 0;
 #ifdef DOUBLE_AS_REAL
     double r = strtod(buf, &end);
 #else
     float r = strtof(buf, &end);
 #endif
+    if (errno) return F_FALSE;
     if (end == buf || *end != '\0') return F_FALSE;
     *out = (real)r;
     return F_TRUE;
