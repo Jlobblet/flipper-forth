@@ -431,7 +431,7 @@
         NEXT();
     do_allot:
         allot(*(dsp - 1));
-        dsp++;
+        dsp--;
         NEXT();
     do_fetch:
         *(dsp - 1) = *((cell *)*(dsp - 1));
