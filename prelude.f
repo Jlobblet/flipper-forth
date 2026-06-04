@@ -144,8 +144,7 @@ ALIAS NB. \
 : LPUSH ( xt L -- ) (L: -- xt L ) SWAP >LSP >LSP ;
 : LPOP ( -- xt L ) (L: xt L -- ) LSP> LSP> SWAP ;
 
-\ Since LSP is the next location to write to, LSP 1- @ peeks at the level
-: LPEEK LSP 1- @ ;
+: LPEEK LSP @ CELL - @ ;
 
 \ Now, we need somewhere to store the EXPR-specific operators: its own
 \ dictionary, essentially. We do this with four parallel arrays for the address xt,
