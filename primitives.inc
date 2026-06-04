@@ -341,8 +341,8 @@
     do_immediate:
         w_set_immediate(latest);
         NEXT();
-    do_forget:
-        WORD("Expected name after FORGET\n");
+    do_hide:
+        WORD("Expected name after HIDE\n");
         w = find(tok, tok_len);
         if (!w) { printf("? %.*s\n", tok_len, tok); NEXT(); }
         w_set_hidden(w);

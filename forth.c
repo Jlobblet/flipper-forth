@@ -514,7 +514,7 @@ run(void) {
     word_t *w_postpone = create_header("POSTPONE", 8, &&do_postpone);
     w_set_immediate(w_postpone);
     create_header("IMMEDIATE", 9, &&do_immediate);
-    create_header("FORGET", 6, &&do_forget);
+    create_header("HIDE", 4, &&do_hide);
     create_header("SEE", 3, &&do_see);
     create_header("WORDS", 5, &&do_words);
 
