@@ -2,9 +2,9 @@
 : (
   1 BEGIN
     KEY DUP [CHAR] ( =
-    IF DROP 1 +
-    ELSE [CHAR] ) = IF 1 - THEN THEN
-  DUP 0 = UNTIL
+    IF DROP 1+
+    ELSE [CHAR] ) = IF 1- THEN THEN
+  DUP 0= UNTIL
   DROP
   ; IMMEDIATE
 
@@ -49,20 +49,9 @@ ALIAS NB. \
 : SPACE BL EMIT ;
 : CR 0XA EMIT ;
 \ Print n spaces
-: SPACES ( n -- ) BEGIN DUP WHILE SPACE 1 - REPEAT DROP ;
+: SPACES ( n -- ) BEGIN DUP WHILE SPACE 1- REPEAT DROP ;
 
-: 0= ( n -- ? ) 0 = ;
-: 0< ( n -- ? ) 0 SWAP < ;
-: 0> ( n -- ? ) 0 SWAP > ;
-
-: 1+ ( n -- 1+n ) 1 + ;
-ALIAS +1 1+
-: 1- ( n -- 1-n ) 1 SWAP - ;
-: 2* ( n -- 2n ) 2 * ;
-: 2/ ( n -- 2/n )2 SWAP / ;
-: /2 ( n -- n/2 ) 2 / ;
-: NEGATE ( n -- -n ) 0 SWAP - ;
-: ABS ( n -- |n| ) DUP 0 < IF NEGATE THEN ;
+: ABS ( n -- |n| ) DUP 0< IF NEGATE THEN ;
 
 \ Constants for Boolean flags
 0 CONSTANT F
@@ -74,11 +63,11 @@ ALIAS +1 1+
 : FAC ( n -- n! )
   1 SWAP
   BEGIN DUP
-  WHILE TUCK * SWAP 1 -
+  WHILE TUCK * SWAP 1-
   REPEAT DROP ;
 
 : FIB ( n -- F_n )
   1 0 ROT
   BEGIN DUP
-  WHILE -ROT SWAP TUCK + SWAP ROT 1 -
+  WHILE -ROT SWAP TUCK + SWAP ROT 1-
   REPEAT DROP NIP ;

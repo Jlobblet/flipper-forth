@@ -481,6 +481,16 @@ run(void) {
     create_header(">=", 2, &&do_gte);
     create_header("=", 1, &&do_eq);
     create_header("<>", 2, &&do_neq);
+    create_header("1+", 2, &&do_1p);
+    create_header("1-", 2, &&do_1m);
+    create_header("2+", 2, &&do_2p);
+    create_header("2-", 2, &&do_2m);
+    create_header("0=", 2, &&do_0eq);
+    create_header("0<", 2, &&do_is_neg);
+    create_header("0>", 2, &&do_is_pos);
+    create_header("2*", 2, &&do_mul2);
+    create_header("/2", 2, &&do_div2);
+    create_header("NEGATE", 6, &&do_negate);
 
     // Floating-point arithmetic
     create_header("F+", 2, &&do_fplus);

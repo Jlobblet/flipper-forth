@@ -165,6 +165,47 @@
     do_gte: CMPBINOP(>=)
     do_eq: CMPBINOP(==)
     do_neq: CMPBINOP(!=)
+    // These are for efficiency - better as code words than colon owrds
+    // ( n -- n+1 )
+    do_1p:
+        *(scell *)(dsp - 1) += 1;
+        NEXT();
+    // ( n -- n-1 )
+    do_1m:
+        *(scell *)(dsp - 1) -= 1;
+        NEXT();
+    // ( n -- n+1 )
+    do_2p:
+        *(scell *)(dsp - 1) += 2;
+        NEXT();
+    // ( n -- n-2 )
+    do_2m:
+        *(scell *)(dsp - 1) -= 2;
+        NEXT();
+    // ( n -- ? )
+    do_0eq:
+        *(dsp - 1) = *(dsp - 1) == 0;
+        NEXT();
+    // ( n -- ? )
+    do_is_pos:
+        *(dsp - 1) = *(dsp - 1) > 0;
+        NEXT();
+    // ( n -- ? )
+    do_is_neg:
+        *(dsp - 1) = *(dsp - 1) < 0;
+        NEXT();
+    // ( n -- 2n )
+    do_mul2:
+        *(scell *)(dsp - 1) *= 2;
+        NEXT();
+    // ( n -- n/2 )
+    do_div2:
+        *(scell *)(dsp - 1) /= 2;
+        NEXT();
+    // ( n -- -n )
+    do_negate:
+        *(scell *)(dsp - 1) = 0 - *(scell *)(dsp - 1);
+        NEXT();
 
     // Floating-point arithmetic
     // -------------------------
