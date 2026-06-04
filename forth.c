@@ -250,6 +250,13 @@ refill(void) {
 }
 
 cell
+key(void) {
+    if (!input_top) return F_FALSE;
+    while (input_top->pos >= input_top->len) refill();
+    return (cell)input_top->data[input_top->pos++];
+}
+
+cell
 parse_token(char **out_start, uint8_t *out_len) {
     if (!input_top) return F_FALSE;
     const char *data = input_top->data;
@@ -566,6 +573,7 @@ run(void) {
     w_set_immediate(w_repeat);
 
     // Parsing
+    create_header("KEY", 3, &&do_key);
     create_header("PARSE-NAME", 10, &&do_parse_name);
     create_header("PARSE", 5, &&do_parse);
     create_header(">NUMBER", 7, &&do_to_number);

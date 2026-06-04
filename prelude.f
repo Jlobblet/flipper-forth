@@ -1,8 +1,25 @@
 : [CHAR] CHAR LIT-COMPILE ; IMMEDIATE
-: ( [CHAR] ) PARSE 2DROP ; IMMEDIATE
+: (
+  1 BEGIN
+    KEY DUP [CHAR] ( =
+    IF DROP 1 +
+    ELSE [CHAR] ) = IF 1 - THEN THEN
+  DUP 0 = UNTIL
+  DROP
+  ; IMMEDIATE
+
+(
+  Now we have multi-line comments!
+  This algorithm pushes 1 to the stack (the opening bracket) and then consumes
+  characters from the input buffer via KEY repeatedly. Each left bracket
+  increments the counter by 1 and each right bracket decrements by 1. When the
+  counter hits zero, the loop breaks, allowing for nested brackets (like in this
+  comment!)
+)
+
 : \ 10 PARSE 2DROP ; IMMEDIATE
 
-\ Now we have comments!
+\ Now we have line comments too!
 
 \ Words for entering compile mode for immediate execution
 : [ 0 STATE ! ; IMMEDIATE

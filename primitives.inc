@@ -518,6 +518,10 @@
 
     // Parsing
     // -------
+    // ( -- c )
+    do_key:
+        dpush(key());
+        NEXT();
     // ( -- addr len )
     do_parse_name:
         if (parse_token(&tok, &tok_len) != F_TRUE) {
