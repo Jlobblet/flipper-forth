@@ -41,6 +41,12 @@ ALIAS NB. \
 : ARRAY CREATE CELLS ALLOT DOES> SWAP CELLS + ;
 : CARRAY CREATE ALLOT DOES> + ;
 
+\ Words for manipulating array and carray pointers
+: PTR++ ( a -- a++ ) DUP @ DUP CELL + ROT ! ;
+: --PTR ( a -- --a ) DUP @ CELL - DUP ROT ! ;
+: CPTR++ ( a -- a++ ) DUP @ DUP 1+ ROT ! ;
+: --CPTR ( a -- --a ) DUP @ 1- DUP ROT ! ;
+
 \ Print a string immediately
 : ." POSTPONE S" STATE @ IF POSTPONE TYPE ELSE TYPE THEN ; IMMEDIATE
 
