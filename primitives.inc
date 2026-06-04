@@ -102,6 +102,15 @@
     do_2drop:
         dsp -= 2;
         NEXT();
+    // ( a b c d -- c d a b )
+    do_2swap:
+        a = *(dsp - 4);
+        b = *(dsp - 3);
+        *(dsp - 4) = *(dsp - 2);
+        *(dsp - 3) = *(dsp - 1);
+        *(dsp - 2) = a;
+        *(dsp - 1) = b;
+        NEXT();
     // ( a b c -- b c a )
     do_rot:
         a = *(dsp - 3);
