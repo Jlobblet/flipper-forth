@@ -460,6 +460,7 @@ run(void) {
     create_header("2DUP", 4, &&do_2dup);
     create_header("2DROP", 5, &&do_2drop);
     create_header("2SWAP", 5, &&do_2swap);
+    create_header("3DROP", 5, &&do_3drop);
     create_header("ROT", 3, &&do_rot);
     create_header("-ROT", 4, &&do_minus_rot);
     create_header("NIP", 3, &&do_nip);

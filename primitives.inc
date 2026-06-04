@@ -111,6 +111,10 @@
         *(dsp - 2) = a;
         *(dsp - 1) = b;
         NEXT();
+    // ( a b c -- )
+    do_3drop:
+        dsp -= 3;
+        NEXT();
     // ( a b c -- b c a )
     do_rot:
         a = *(dsp - 3);
