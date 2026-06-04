@@ -77,3 +77,125 @@ ALIAS NB. \
   BEGIN DUP
   WHILE -ROT SWAP TUCK + SWAP ROT 1-
   REPEAT DROP NIP ;
+
+\ Store a counted string in the dictionary
+: STRING, ( addr u -- a )
+  HERE -ROT            ( a addr u )
+  BEGIN DUP WHILE
+    OVER C@ C,
+    1- SWAP 1+ SWAP
+  REPEAT 2DROP ;
+
+\ Counted strings: store a length byte then the string after
+: CSTRING, ( addr u -- c-addr ) HERE -ROT DUP C, STRING, DROP ;
+
+\ Look up a counted string in regular string format
+: COUNT ( c-addr -- addr u )  DUP 1+ SWAP C@ ;
+
+\ Type a counted string
+: CTYPE ( c-addr -- ) COUNT TYPE ;
+
+\ String equality
+: S= ( a1 u1 a2 u2 -- ? )
+  ROT OVER <> IF 3DROP F EXIT THEN  \ test lengths
+  ( a1 a2 u )
+  BEGIN DUP WHILE
+    -ROT 2DUP C@ SWAP C@ <> IF 3DROP F EXIT THEN
+    1+ SWAP 1+ ROT 1-
+  REPEAT 3DROP T ;
+
+\ EXPR implementation
+\ -------------------
+
+(
+  EXPR is a "bracketed" opt-in infix operator expression.
+
+  The idea is that within the bounds of EXPR and ;EXPR, arithmetic will be
+  evaluated using infix precedence levels. Words will push themselves to a
+  level stack if their level is greater than or equal to than what is already
+  on the stack. If their level is lower, they will evaluate what is there
+  instead.
+
+  EXPR can work in both modes.
+
+  In interpret mode, we just need to either push operators to the level stack
+  or evaluate them to the data stack as we go.
+
+  In compile mode, the act of "evaluating" is actually compiling with , or F,.
+  This is quite nice, since we just write to HERE and everything flows through
+  nicely, as expected.
+
+  Level words will be passed around as pairs at all points: the address (xt) and
+  the level (L). Therefore the capacity of the level stack is half its number of
+  cells, because each entry takes up two cells.
+)
+
+\ Allow us to use (L: to introduce comments
+: (L: POSTPONE ( ; IMMEDIATE
+
+\ Firstly, we need the level stack
+32 ARRAY LSTACK
+0 LSTACK VARIABLE! LSP
+
+: LSP++ ( -- a ) LSP PTR++ ;
+: --LSP ( -- a ) LSP --PTR ;
+: >LSP ( a -- ) LSP++ ! ;
+: LSP> ( -- a ) --LSP @ ;
+: LPUSH ( xt L -- ) (L: -- xt L ) SWAP >LSP >LSP ;
+: LPOP ( -- xt L ) (L: xt L -- ) LSP> LSP> SWAP ;
+
+\ Since LSP is the next location to write to, LSP 1- @ peeks at the level
+: LPEEK LSP 1- @ ;
+
+\ Now, we need somewhere to store the EXPR-specific operators: its own
+\ dictionary, essentially. We do this with four parallel arrays for the address xt,
+\ level L, and name address a as a counted string.
+256 CONSTANT LDICT-SIZE
+LDICT-SIZE  ARRAY LDICT-XT
+LDICT-SIZE CARRAY LDICT-L
+LDICT-SIZE  ARRAY LDICT-A
+VARIABLE LDICT-N
+
+\ Store a new level word into the level dict
+: (LEVEL) ( xt L addr u -- )
+  CSTRING, ( xt L c-addr )
+  LDICT-N @ ( xt L c-addr n )
+  TUCK LDICT-A ! ( xt L n )
+  TUCK LDICT-L C! ( xt n )
+  TUCK LDICT-XT ! ( n )
+  1+ LDICT-N ! ;
+
+\ As above, but PARSE-NAME to get the next token instead of needing a string
+: LEVEL PARSE-NAME (LEVEL) ;
+
+\ Find a level word in the level dict
+: FIND-LEVEL ( addr u -- xt L true | addr u false )
+  LDICT-N @ >R  \ stash the limit on the return stack
+  0
+  BEGIN DUP R@ < WHILE
+    ( addr u i )
+    \ stash i on the return stack to make dealing with the strings easier
+    >R
+    2DUP R@ LDICT-A @ COUNT  ( addr u addr u ai ui )
+    S= IF                    ( addr u )
+    2DROP R> DUP             ( i i )
+    LDICT-XT @               ( i xt )
+    SWAP LDICT-L C@          ( xt L )
+    R> DROP T EXIT           ( xt L true )
+    THEN
+    R> 1+
+  REPEAT DROP R> DROP F ;  \ remove i and the limit, add false
+
+\ Shunting-yard algorithm
+\ Pop and execute everything on LSTACK with a >= level to the input
+\ Then, push the input
+
+' + 1 LEVEL +
+' - 1 LEVEL -
+
+\ We can now hide the internals
+(
+HIDE LSTACK
+HIDE LSP HIDE LSP++ HIDE --LSP HIDE >LSP HIDE LSP>
+HIDE LPUSH HIDE LPOP
+)
