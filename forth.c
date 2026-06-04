@@ -489,7 +489,7 @@ run(void) {
     create_header("0<", 2, &&do_is_neg);
     create_header("0>", 2, &&do_is_pos);
     create_header("2*", 2, &&do_mul2);
-    create_header("/2", 2, &&do_div2);
+    create_header("2/", 2, &&do_div2);
     create_header("NEGATE", 6, &&do_negate);
 
     // Floating-point arithmetic
