@@ -17,7 +17,7 @@
   comment!)
 )
 
-: \ 10 PARSE 2DROP ; IMMEDIATE
+: \ 0XA PARSE 2DROP ; IMMEDIATE
 
 \ Now we have line comments too!
 
