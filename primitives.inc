@@ -201,13 +201,8 @@
             align();
         } else {
             // Copy into the string buffer and push addr/len
-            if (string_pad + b > string_pad_buf + STRING_PAD_SIZE)
-                string_pad = string_pad_buf;
-
-            memcpy(string_pad, (char *)a, b);
-            dpush((cell)string_pad);
+            dpush(string_pad_write((char *)a, b));
             dpush(b);
-            string_pad += b;
         }
         NEXT();
     do_s_quo_runtime:
@@ -341,12 +336,30 @@
     do_immediate:
         w_set_immediate(latest);
         NEXT();
+    // ( xt -- ? )
+    do_is_immediate:
+        a = dpop();
+        dpush(FBOOL(w_is_immediate((word_t *)a)));
+        NEXT();
     do_hide:
         WORD("Expected name after HIDE\n");
         w = find(tok, tok_len);
         if (!w) { printf("? %.*s\n", tok_len, tok); NEXT(); }
         w_set_hidden(w);
         NEXT();
+    // ( addr len -- xt true | addr len false )
+    do_find:
+        b = *(dsp - 1);
+        a = *(dsp - 2);
+        w = find((char *)a, (uint8_t) b);
+        if (w) {
+            *(dsp - 2) = (cell)w;
+            *(dsp - 1) = F_TRUE;
+        } else {
+            *dsp++ = F_FALSE;
+        }
+        NEXT();
+    // ( -- )
     do_see:
         WORD("Expected name after SEE\n");
         w = find(tok, tok_len);
@@ -505,10 +518,42 @@
 
     // Parsing
     // -------
+    // ( -- addr len )
+    do_parse_name:
+        if (parse_token(&tok, &tok_len) != F_TRUE) {
+            printf("Expected a token after PARSE-NAME\n");
+            NEXT();
+        }
+        dpush(string_pad_write(tok, (size_t)tok_len));
+        dpush((cell)tok_len);
+        NEXT();
     // ( delim -- addr len )
     do_parse:
         c = (char)dpop();
         parse(c, &a, &b);
         dpush(a);
         dpush(b);
+        NEXT();
+    // ( addr len -- n true | false )
+    do_to_number:
+        tok = (char *)*(dsp - 2);
+        tok_len = (uint8_t)*(dsp - 1);
+        b = parse_number(tok, tok_len, &sa);
+        if (b) {
+            *(dsp - 2) = (cell)sa;
+            *(dsp - 1) = F_TRUE;
+        } else {
+            *(dsp - 2) = F_FALSE;
+            dsp--;
+        }
+        NEXT();
+    // ( addr len -- true | false ) (F: -- n | )
+    do_to_real:
+        tok = (char *)*(dsp - 2);
+        tok_len = (uint8_t)*(dsp - 1);
+        b = parse_real(tok, tok_len, &fa);
+        dsp--;
+        *(dsp - 1) = b;
+        if (b)
+            *fsp++ = fa;
         NEXT();

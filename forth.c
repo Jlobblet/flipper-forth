@@ -137,6 +137,18 @@ real *fsp = fstack;
 char string_pad_buf[STRING_PAD_SIZE];
 char *string_pad = string_pad_buf;
 
+cell
+string_pad_write(char *s, size_t n) {
+    // If we would go past the end of the string pad, reset to the beginning
+    if (string_pad + n > string_pad_buf + STRING_PAD_SIZE)
+        string_pad = string_pad_buf;
+
+    const cell r = (cell)string_pad;
+    memcpy(string_pad, s, n);
+    string_pad += n;
+    return r;
+}
+
 #ifdef BOUNDSCHECK
 #define PUSH(name, p, stack, stack_type, size)\
     void\
@@ -514,7 +526,9 @@ run(void) {
     word_t *w_postpone = create_header("POSTPONE", 8, &&do_postpone);
     w_set_immediate(w_postpone);
     create_header("IMMEDIATE", 9, &&do_immediate);
+    create_header("IMMEDIATE?", 10, &&do_is_immediate);
     create_header("HIDE", 4, &&do_hide);
+    create_header("FIND", 4, &&do_find);
     create_header("SEE", 3, &&do_see);
     create_header("WORDS", 5, &&do_words);
 
@@ -552,7 +566,10 @@ run(void) {
     w_set_immediate(w_repeat);
 
     // Parsing
+    create_header("PARSE-NAME", 10, &&do_parse_name);
     create_header("PARSE", 5, &&do_parse);
+    create_header(">NUMBER", 7, &&do_to_number);
+    create_header(">REAL", 5, &&do_to_real);
 
     static cell exec_buf[2];
     exec_buf[1] = (cell)w_halt;
