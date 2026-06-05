@@ -562,6 +562,9 @@ run(void) {
     create_header("C,", 2, &&do_char_comma);
     create_header("C@", 2, &&do_char_fetch);
     create_header("C!", 2, &&do_char_store);
+    create_header("F,", 2, &&do_f_comma);
+    create_header("F@", 2, &&do_f_fetch);
+    create_header("F!", 2, &&do_f_store);
 
     // Control flow
     word_t *w_branch = create_header("BRANCH", 6, &&do_branch);

@@ -510,6 +510,18 @@
         *(uint8_t *)*(dsp - 1) = (char)*(dsp - 2);
         dsp -= 2;
         NEXT();
+    // (F: a -- )
+    do_f_comma:
+        fcomma(*(fsp-- - 1));
+        NEXT();
+    // ( a -- ) (F: -- v )
+    do_f_fetch:
+        *(fsp++ - 1) = *(real *)(dsp-- - 1);
+        NEXT();
+    // ( a -- ) (F: v -- )
+    do_f_store:
+        *(dsp-- - 1) = *(fsp-- - 1);
+        NEXT();
 
     // Control flow
     // ------------
