@@ -137,13 +137,13 @@ ALIAS NB. \
 32 ARRAY LSTACK
 0 LSTACK VARIABLE! LSP
 
+: LSTACK-EMPTY? 0 LSTACK LSP @ >= ;
 : LSP++ ( -- a ) LSP PTR++ ;
 : --LSP ( -- a ) LSP --PTR ;
 : >LSP ( a -- ) LSP++ ! ;
 : LSP> ( -- a ) --LSP @ ;
 : LPUSH ( xt L -- ) (L: -- xt L ) SWAP >LSP >LSP ;
 : LPOP ( -- xt L ) (L: xt L -- ) LSP> LSP> SWAP ;
-
 : L@ ( -- a ) (L: a -- a ) LSP @ CELL - @ ;
 
 \ Now, we need somewhere to store the EXPR-specific operators: its own
@@ -165,7 +165,7 @@ VARIABLE LDICT-N
   1+ LDICT-N ! ;
 
 \ As above, but PARSE-NAME to get the next token instead of needing a string
-: LEVEL PARSE-NAME (LEVEL) ;
+: :LEVEL PARSE-NAME (LEVEL) ;
 
 \ Find a level word in the level dict
 : FIND-LEVEL ( addr u -- xt L true | addr u false )
@@ -188,13 +188,26 @@ VARIABLE LDICT-N
 \ Shunting-yard algorithm
 \ Pop and execute everything on LSTACK with a >= level to the input
 \ Then, push the input
+\ We use some variables to store the pending level word while we work
+\ This means the function is *not* re-entrant. Probably fine!
+VARIABLE SHUNT-XT
+VARIABLE SHUNT-L
+: (SHUNT) ( xt L -- )
+  SHUNT-L ! SHUNT-XT !
+  BEGIN
+    LSTACK-EMPTY? IF F ELSE L@ SHUNT-L @ >= THEN
+  WHILE
+    LPOP DROP EXECUTE
+  REPEAT
+  SHUNT-XT @ SHUNT-L @ LPUSH ;
 
-' + 1 LEVEL +
-' - 1 LEVEL -
+' + 1 :LEVEL +
+' - 1 :LEVEL -
 
 \ We can now hide the internals
 (
-HIDE LSTACK
+HIDE LSTACK LSTACK-EMPTY?
 HIDE LSP HIDE LSP++ HIDE --LSP HIDE >LSP HIDE LSP>
-HIDE LPUSH HIDE LPOP
+HIDE LPUSH HIDE LPOP HIDE L@
+HIDE SHUNT-XT HIDE SHUNT-L HIDE (SHUNT)
 )
