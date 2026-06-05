@@ -216,10 +216,23 @@ HERE CONSTANT EXPR-XT  1 ALLOT
 HERE CONSTANT PAREN-XT 1 ALLOT
 
 VARIABLE SEN-XT
+VARIABLE EXPR-BAD
 
 : SEN-EXPR ( sen -- )
   SEN-XT !
-  BEGIN LPOP DROP DUP SEN-XT @ <> WHILE RUN-OR-COMPILE REPEAT DROP ;
+  BEGIN
+    LSTACK-EMPTY? IF ." Unmatched close" CR T EXPR-BAD ! EXIT THEN
+    ( xt L )
+    LPOP
+    \ if we've found the sentinel, we're done
+    OVER SEN-XT @ = IF 2DROP EXIT THEN
+    \ a different sentinel to sen: something wrong
+    DUP SENTINEL-LEVEL = IF
+      ." Mismatched bracket" CR T EXPR-BAD ! 2DROP EXIT
+    THEN
+    \ everything correct
+    DROP RUN-OR-COMPILE
+  AGAIN ;
 
 : ;EXPR ( -- ) EXPR-XT SEN-EXPR ;
 : ]EXPR ( -- ) PAREN-XT SEN-EXPR ;
@@ -232,22 +245,36 @@ VARIABLE SEN-XT
   FIND       IF RUN-OR-COMPILE                              F EXIT THEN
   2DUP >NUMBER IF NIP NIP STATE @ IF LIT-COMPILE  THEN      F EXIT THEN
   2DUP >REAL   IF 2DROP   STATE @ IF FLIT-COMPILE THEN      F EXIT THEN
-  ." ? " TYPE CR 2DROP                                      F ;
+  ." ? " TYPE CR T EXPR-BAD !                               F ;
 
 : EXPR ( -- )
-  \ Push the sentinel
+  \ Set up: save entry LSP, set EXPR-BAD to F, and push the sentinel
+  LSP @ >R
+  F EXPR-BAD !
   EXPR-XT SENTINEL-LEVEL LPUSH
   \ Enter the EXPR interpreter
   BEGIN
     \ parse the next token, refilling input as needed
     BEGIN
       PARSE-NAME DUP IF T ELSE
-        2DROP REFILL 0= IF ." EXPR not terminated" CR T EXIT THEN
-        F
+        2DROP REFILL 0= IF 0 0 T ELSE F THEN
       THEN
     UNTIL
-    DISPATCH-TOKEN
-  UNTIL ; IMMEDIATE
+    ( addr u )
+    DUP 0= IF
+      2DROP ." EXPR not terminated" CR
+      T EXPR-BAD ! T
+    ELSE
+      EXPR-BAD @ IF
+        2DUP S" ;EXPR" S= IF 2DROP T ELSE 2DROP F THEN
+      ELSE
+        DISPATCH-TOKEN
+      THEN
+    THEN
+  UNTIL
+  \ Restore RSP
+  R> LSP !
+  ; IMMEDIATE
 
 ' <  1 :LEVEL <
 ' <= 1 :LEVEL <=
@@ -277,3 +304,4 @@ HIDE --LSP HIDE >LSP HIDE LSP> HIDE LPUSH
 HIDE LPOP HIDE L@ HIDE LDICT-SIZE HIDE LDICT-XT
 HIDE LDICT-L HIDE LDICT-A HIDE LDICT-N HIDE (LEVEL)
 HIDE SHUNT-XT HIDE SHUNT-L HIDE (SHUNT) HIDE DISPATCH-TOKEN
+HIDE EXPR-BAD
