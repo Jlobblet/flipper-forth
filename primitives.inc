@@ -600,6 +600,8 @@
     do_parse_name:
         if (parse_token(&tok, &tok_len) != F_TRUE) {
             printf("Expected a token after PARSE-NAME\n");
+            dpush(0);
+            dpush(0);
             NEXT();
         }
         dpush(string_pad_write(tok, (size_t)tok_len));
