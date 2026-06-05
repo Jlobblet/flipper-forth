@@ -221,7 +221,16 @@ VARIABLE SEN-XT
 : ;EXPR ( -- ) EXPR-XT SEN-EXPR ;
 : ]EXPR ( -- ) PAREN-XT SEN-EXPR ;
 
-: EXPR  ( -- )
+: DISPATCH-TOKEN ( addr u -- terminate? )
+  2DUP S" ;EXPR" S= IF 2DROP ;EXPR                          T EXIT THEN
+  2DUP S" ["     S= IF 2DROP PAREN-XT SENTINEL-LEVEL LPUSH  F EXIT THEN
+  2DUP S" ]"     S= IF 2DROP ]EXPR                          F EXIT THEN
+  FIND-LEVEL IF (SHUNT)                                     F EXIT THEN
+  2DUP >NUMBER IF NIP NIP STATE @ IF LIT-COMPILE  THEN      F EXIT THEN
+  2DUP >REAL   IF 2DROP   STATE @ IF FLIT-COMPILE THEN      F EXIT THEN
+  ." ? " TYPE CR 2DROP                                      F ;
+
+: EXPR ( -- )
   \ Push the sentinel
   EXPR-XT SENTINEL-LEVEL LPUSH
   \ Enter the EXPR interpreter
@@ -229,39 +238,12 @@ VARIABLE SEN-XT
     \ parse the next token, refilling input as needed
     BEGIN
       PARSE-NAME DUP IF T ELSE
-        2DROP REFILL 0= IF
-          ." EXPR not terminated" CR EXIT
-        THEN
+        2DROP REFILL 0= IF ." EXPR not terminated" CR T EXIT THEN
         F
       THEN
     UNTIL
-    ( addr u )
-    2DUP S" ;EXPR" S= IF 2DROP ;EXPR EXIT THEN
-    2DUP S" [" S= IF
-      2DROP PAREN-XT SENTINEL-LEVEL LPUSH
-    ELSE
-      2DUP S" ]" S= IF
-        2DROP ]EXPR
-      ELSE
-        FIND-LEVEL IF
-          (SHUNT)
-        ELSE
-          2DUP >NUMBER IF
-            NIP NIP
-            STATE @ IF LIT-COMPILE THEN
-          ELSE
-            2DUP >REAL IF
-              DROP DROP
-              STATE @ IF FLIT-COMPILE THEN
-            ELSE
-              ." ? " TYPE CR
-              2DROP
-            THEN
-          THEN
-        THEN
-      THEN
-    THEN
-  AGAIN ; IMMEDIATE
+    DISPATCH-TOKEN
+  UNTIL ; IMMEDIATE
 
 ' + 1 :LEVEL +
 ' - 1 :LEVEL -
