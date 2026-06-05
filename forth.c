@@ -585,6 +585,7 @@ run(void) {
     w_set_immediate(w_repeat);
 
     // Parsing
+    create_header("REFILL", 6, &&do_refill);
     create_header("KEY", 3, &&do_key);
     create_header("PARSE-NAME", 10, &&do_parse_name);
     create_header("PARSE", 5, &&do_parse);

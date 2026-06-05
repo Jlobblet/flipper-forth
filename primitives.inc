@@ -572,6 +572,10 @@
 
     // Parsing
     // -------
+    // ( -- ? )
+    do_refill:
+        dpush(refill());
+        NEXT();
     // ( -- c )
     do_key:
         dpush(key());
