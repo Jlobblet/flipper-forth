@@ -232,8 +232,12 @@ HERE CONSTANT PAREN-XT 1 ALLOT
       2DUP >NUMBER IF
         NIP NIP
       ELSE
-        ." ? " TYPE CR
-        2DROP
+        2DUP >REAL IF
+          DROP DROP
+        ELSE
+          ." ? " TYPE CR
+          2DROP
+        THEN
       THEN
     THEN
   AGAIN ;
@@ -242,6 +246,11 @@ HERE CONSTANT PAREN-XT 1 ALLOT
 ' - 1 :LEVEL -
 ' * 2 :LEVEL *
 ' / 2 :LEVEL /
+
+' F+ 1 :LEVEL F+
+' F- 1 :LEVEL F-
+' F* 2 :LEVEL F*
+' F/ 2 :LEVEL F/
 
 \ We can now hide the internals
 (
