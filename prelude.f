@@ -197,18 +197,24 @@ VARIABLE SHUNT-L
   BEGIN
     LSTACK-EMPTY? IF F ELSE L@ SHUNT-L @ >= THEN
   WHILE
-    LPOP DROP EXECUTE
+    LPOP DROP
+    STATE @ IF , ELSE EXECUTE THEN
   REPEAT
   SHUNT-XT @ SHUNT-L @ LPUSH ;
 
-\ Sentinels for EXPR and (
+\ Sentinels for EXPR and [
 0 CONSTANT SENTINEL-LEVEL
 HERE CONSTANT EXPR-XT  1 ALLOT
 HERE CONSTANT PAREN-XT 1 ALLOT
 
-: ;EXPR ( -- )
-  BEGIN LPOP DROP DUP EXPR-XT <> WHILE EXECUTE REPEAT
-  DROP ;
+VARIABLE SEN-XT
+
+: SEN-EXPR ( sen -- )
+  SEN-XT !
+  BEGIN LPOP DROP DUP SEN-XT @ <> WHILE EXECUTE REPEAT DROP ;
+
+: ;EXPR ( -- ) EXPR-XT SEN-EXPR ;
+: ]EXPR ( -- ) PAREN-XT SEN-EXPR ;
 
 : EXPR  ( -- )
   \ Push the sentinel
@@ -226,21 +232,31 @@ HERE CONSTANT PAREN-XT 1 ALLOT
     UNTIL
     ( addr u )
     2DUP S" ;EXPR" S= IF 2DROP ;EXPR EXIT THEN
-    FIND-LEVEL IF
-      (SHUNT)
+    2DUP S" [" S= IF
+      2DROP PAREN-XT SENTINEL-LEVEL LPUSH
     ELSE
-      2DUP >NUMBER IF
-        NIP NIP
+      2DUP S" ]" S= IF
+        2DROP ]EXPR
       ELSE
-        2DUP >REAL IF
-          DROP DROP
+        FIND-LEVEL IF
+          (SHUNT)
         ELSE
-          ." ? " TYPE CR
-          2DROP
+          2DUP >NUMBER IF
+            NIP NIP
+            STATE @ IF ' LIT , , THEN
+          ELSE
+            2DUP >REAL IF
+              DROP DROP
+              STATE @ IF ' FLIT , , THEN
+            ELSE
+              ." ? " TYPE CR
+              2DROP
+            THEN
+          THEN
         THEN
       THEN
     THEN
-  AGAIN ;
+  AGAIN ; IMMEDIATE
 
 ' + 1 :LEVEL +
 ' - 1 :LEVEL -
