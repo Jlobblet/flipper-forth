@@ -526,10 +526,11 @@ run(void) {
     word_t *w_exit = create_header("EXIT", 4, &&do_exit);
     word_t *w_lit = create_header("LIT", 3, &&do_lit);
     w_set_hidden(w_lit);
+    create_header("LIT-COMPILE", 11, &&do_lit_compile);
     word_t *w_flit = create_header("FLIT", 4, &&do_flit);
     w_set_hidden(w_flit);
+    create_header("FLIT-COMPILE", 12, &&do_flit_compile);
     create_header("CHAR", 4, &&do_char);
-    create_header("LIT-COMPILE", 11, &&do_lit_compile);
     create_header("'", 1, &&do_tick);
     word_t *w_tick_immediate = create_header("[']", 3, &&do_tick_immediate);
     w_set_immediate(w_tick_immediate);

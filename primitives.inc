@@ -297,6 +297,10 @@
     do_lit:
         dpush(*IP++);
         NEXT();
+    do_lit_compile:
+        comma((cell)w_lit);
+        comma(dpop());
+        NEXT();
     do_flit:
         ptr = (uint8_t *)IP;
         fa = *(real *)ptr;
@@ -305,13 +309,13 @@
         PTR_ALIGN();
         IP = (cell *)ptr;
         NEXT();
+    do_flit_compile:
+        comma((cell)w_flit);
+        fcomma(fpop());
+        NEXT();
     do_char:
         WORD(nullptr);
         dpush((cell)(unsigned char)tok[0]);
-        NEXT();
-    do_lit_compile:
-        comma((cell)w_lit);
-        comma(dpop());
         NEXT();
     do_tick:
         WORD("Expected token after '\n");

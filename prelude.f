@@ -27,6 +27,12 @@
 : [: :NONAME ; IMMEDIATE
 : ;] POSTPONE EXIT POSTPONE [ EXECUTE ; IMMEDIATE
 
+\ Run a word or compile it into the current definition based on STATE
+: RUN-OR-COMPILE ( xt -- )
+  STATE @ IF
+    DUP IMMEDIATE? IF EXECUTE ELSE , THEN
+  ELSE EXECUTE THEN ;
+
 \ Cheap word for creating aliases
 : ALIAS ( "newname" "oldname" -- ) CREATE ' , DOES> @ EXECUTE ;
 ALIAS NB. \
@@ -197,8 +203,7 @@ VARIABLE SHUNT-L
   BEGIN
     LSTACK-EMPTY? IF F ELSE L@ SHUNT-L @ >= THEN
   WHILE
-    LPOP DROP
-    STATE @ IF , ELSE EXECUTE THEN
+    LPOP DROP RUN-OR-COMPILE
   REPEAT
   SHUNT-XT @ SHUNT-L @ LPUSH ;
 
@@ -211,7 +216,7 @@ VARIABLE SEN-XT
 
 : SEN-EXPR ( sen -- )
   SEN-XT !
-  BEGIN LPOP DROP DUP SEN-XT @ <> WHILE EXECUTE REPEAT DROP ;
+  BEGIN LPOP DROP DUP SEN-XT @ <> WHILE RUN-OR-COMPILE REPEAT DROP ;
 
 : ;EXPR ( -- ) EXPR-XT SEN-EXPR ;
 : ]EXPR ( -- ) PAREN-XT SEN-EXPR ;
@@ -243,11 +248,11 @@ VARIABLE SEN-XT
         ELSE
           2DUP >NUMBER IF
             NIP NIP
-            STATE @ IF ' LIT , , THEN
+            STATE @ IF LIT-COMPILE THEN
           ELSE
             2DUP >REAL IF
               DROP DROP
-              STATE @ IF ' FLIT , , THEN
+              STATE @ IF FLIT-COMPILE THEN
             ELSE
               ." ? " TYPE CR
               2DROP
