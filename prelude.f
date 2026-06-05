@@ -201,8 +201,47 @@ VARIABLE SHUNT-L
   REPEAT
   SHUNT-XT @ SHUNT-L @ LPUSH ;
 
+\ Sentinels for EXPR and (
+0 CONSTANT SENTINEL-LEVEL
+HERE CONSTANT EXPR-XT  1 ALLOT
+HERE CONSTANT PAREN-XT 1 ALLOT
+
+: ;EXPR ( -- )
+  BEGIN LPOP DROP DUP EXPR-XT <> WHILE EXECUTE REPEAT
+  DROP ;
+
+: EXPR  ( -- )
+  \ Push the sentinel
+  EXPR-XT SENTINEL-LEVEL LPUSH
+  \ Enter the EXPR interpreter
+  BEGIN
+    \ parse the next token, refilling input as needed
+    BEGIN
+      PARSE-NAME DUP IF T ELSE
+        2DROP REFILL 0= IF
+          ." EXPR not terminated" CR EXIT
+        THEN
+        F
+      THEN
+    UNTIL
+    ( addr u )
+    2DUP S" ;EXPR" S= IF 2DROP ;EXPR EXIT THEN
+    FIND-LEVEL IF
+      (SHUNT)
+    ELSE
+      2DUP >NUMBER IF
+        NIP NIP
+      ELSE
+        ." ? " TYPE CR
+        2DROP
+      THEN
+    THEN
+  AGAIN ;
+
 ' + 1 :LEVEL +
 ' - 1 :LEVEL -
+' * 2 :LEVEL *
+' / 2 :LEVEL /
 
 \ We can now hide the internals
 (
