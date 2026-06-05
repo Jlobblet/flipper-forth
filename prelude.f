@@ -245,15 +245,27 @@ VARIABLE SEN-XT
     DISPATCH-TOKEN
   UNTIL ; IMMEDIATE
 
-' + 1 :LEVEL +
-' - 1 :LEVEL -
-' * 2 :LEVEL *
-' / 2 :LEVEL /
+' <  1 :LEVEL <
+' <= 1 :LEVEL <=
+' >  1 :LEVEL >
+' >= 1 :LEVEL >=
+' =  1 :LEVEL =
+' <> 1 :LEVEL <>
+' + 2 :LEVEL +
+' - 2 :LEVEL -
+' * 3 :LEVEL *
+' / 3 :LEVEL /
 
-' F+ 1 :LEVEL F+
-' F- 1 :LEVEL F-
-' F* 2 :LEVEL F*
-' F/ 2 :LEVEL F/
+' F<  1 :LEVEL F<
+' F<= 1 :LEVEL F<=
+' F>  1 :LEVEL F>
+' F>= 1 :LEVEL F>=
+' F=  1 :LEVEL F=
+' F<> 1 :LEVEL F<>
+' F+ 2 :LEVEL F+
+' F- 2 :LEVEL F-
+' F* 3 :LEVEL F*
+' F/ 3 :LEVEL F/
 
 \ We can now hide the internals
 (
