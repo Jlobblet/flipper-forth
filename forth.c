@@ -445,6 +445,7 @@ run(void) {
     create_header("EXECUTE", 7, &&do_execute);
     create_header("STATE", 5, &&do_state);
     create_header("HERE", 4, &&do_here);
+    create_header("ABORT", 5, &&do_abort);
 
     // Stack manipulation
     create_header(".", 1, &&do_dot);

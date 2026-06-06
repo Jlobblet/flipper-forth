@@ -44,6 +44,15 @@
     do_here:
         dpush((cell)here);
         NEXT();
+    do_abort:
+        // Clear the data, float, and return stacks,
+        // go back to interpret mode, and go back to
+        // the outer interpreter
+        dsp = dstack;
+        rsp = rstack;
+        fsp = fstack;
+        state = INTERPRET;
+        goto xt_interpret;
 
     // Stack manipulation
     // ------------------

@@ -27,12 +27,6 @@
 : [: :NONAME ; IMMEDIATE
 : ;] POSTPONE EXIT POSTPONE [ EXECUTE ; IMMEDIATE
 
-\ Run a word or compile it into the current definition based on STATE
-: RUN-OR-COMPILE ( xt -- )
-  STATE @ IF
-    DUP IMMEDIATE? IF EXECUTE ELSE , THEN
-  ELSE EXECUTE THEN ;
-
 \ Cheap word for creating aliases
 : ALIAS ( "newname" "oldname" -- ) CREATE ' , DOES> @ EXECUTE ;
 ALIAS NB. \
@@ -41,6 +35,7 @@ ALIAS NB. \
 : C? ( addr -- ) C@ . ;
 : CELLS ( n -- n_c ) CELL * ;
 
+\ Variable and array creation
 : VARIABLE! CREATE , ;
 : VARIABLE CREATE 0 , ;
 : FVARIABLE! CREATE F, ;
@@ -49,6 +44,25 @@ ALIAS NB. \
 : FCONSTANT CREATE F, DOES> F@ ;
 : ARRAY CREATE CELLS ALLOT DOES> SWAP CELLS + ;
 : CARRAY CREATE ALLOT DOES> + ;
+
+\ Constants for Boolean flags
+0 CONSTANT F
+-1 CONSTANT T
+
+\ Parse the next token in the input stream
+\ ( 0 0 ) means end of input
+: NEXT-TOKEN ( -- a u )
+  BEGIN
+    PARSE-NAME DUP IF T ELSE
+      2DROP REFILL 0= IF 0 0 T ELSE F THEN
+    THEN
+  UNTIL ;
+
+\ Run a word or compile it into the current definition based on STATE
+: RUN-OR-COMPILE ( xt -- )
+  STATE @ IF
+    DUP IMMEDIATE? IF EXECUTE ELSE , THEN
+  ELSE EXECUTE THEN ;
 
 \ Words for manipulating array and carray pointers
 : PTR++ ( a -- a++ ) DUP @ DUP CELL + ROT ! ;
@@ -67,10 +81,6 @@ ALIAS NB. \
 : SPACES ( n -- ) BEGIN DUP WHILE SPACE 1- REPEAT DROP ;
 
 : ABS ( n -- |n| ) DUP 0< IF NEGATE THEN ;
-
-\ Constants for Boolean flags
-0 CONSTANT F
--1 CONSTANT T
 
 : SQUARE ( n -- n^2 ) DUP * ;
 : QUAD ( n -- n^4 ) SQUARE SQUARE ;
@@ -154,6 +164,9 @@ ALIAS NB. \
 : LPUSH ( xt L -- ) (L: -- xt L ) SWAP >LSP >LSP ;
 : LPOP ( -- xt L ) (L: xt L -- ) LSP> LSP> SWAP ;
 : L@ ( -- a ) (L: a -- a ) LSP @ CELL - @ ;
+
+\ We also need to amend ABORT to reset LSP now
+: ABORT ABORT 0 LSTACK LSP ! ;
 
 \ Now, we need somewhere to store the EXPR-specific operators: its own
 \ dictionary, essentially. We do this with four parallel arrays for the address xt,
@@ -254,12 +267,7 @@ VARIABLE EXPR-BAD
   EXPR-XT SENTINEL-LEVEL LPUSH
   \ Enter the EXPR interpreter
   BEGIN
-    \ parse the next token, refilling input as needed
-    BEGIN
-      PARSE-NAME DUP IF T ELSE
-        2DROP REFILL 0= IF 0 0 T ELSE F THEN
-      THEN
-    UNTIL
+    NEXT-TOKEN
     ( addr u )
     DUP 0= IF
       2DROP ." EXPR not terminated" CR
@@ -305,3 +313,41 @@ HIDE LPOP HIDE L@ HIDE LDICT-SIZE HIDE LDICT-XT
 HIDE LDICT-L HIDE LDICT-A HIDE LDICT-N HIDE (LEVEL)
 HIDE SHUNT-XT HIDE SHUNT-L HIDE (SHUNT) HIDE DISPATCH-TOKEN
 HIDE EXPR-BAD
+
+
+\ Outer interpreter
+\ -----------------
+
+(
+  We can actually redefine our interpreter to run in Forth rather than C, and
+  we will now do this because it makes expressing the control loop easier as well
+  as simplifying error handling with access to words like ABORT directly. This is
+  easier than in C since we're already inside the interpreter, rather than needing
+  to rely on C helper functions or jumps.
+
+  The interpreter loop here is very similar to EXPR above. We get the next token
+  and then dispatch to try and find a word, parse a number, or parse a real. This
+  also makes it nice to extend in future if we need to.
+
+  INTERPRET-TOKEN is extracted to a separate word so we can take advantage of
+  calling EXIT to early-return inside the word, which means the IF ladder doesn't
+  need to be nested.
+)
+
+: INTERPRET-TOKEN ( addr u -- )
+  FIND IF RUN-OR-COMPILE                              EXIT THEN
+  2DUP >NUMBER IF NIP NIP STATE @ IF LIT-COMPILE THEN EXIT THEN
+  2DUP >REAL IF 2DROP STATE @ IF FLIT-COMPILE THEN    EXIT THEN
+  ." ? " TYPE CR ;
+
+: QUIT ( -- )
+  BEGIN
+    NEXT-TOKEN
+    \ ( addr u ) on the stack: u=0 is the end of input so we use that for the condition
+    DUP
+  WHILE
+    INTERPRET-TOKEN
+  REPEAT 2DROP ;
+
+\ Finally, run it!
+QUIT
