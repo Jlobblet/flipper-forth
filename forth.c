@@ -445,7 +445,15 @@ run(void) {
     create_header("EXECUTE", 7, &&do_execute);
     create_header("STATE", 5, &&do_state);
     create_header("HERE", 4, &&do_here);
-    create_header("ABORT", 5, &&do_abort);
+    create_header("BYE", 3, &&do_bye);
+
+    // Stacks
+    create_header("DSP0", 4, &&do_dsp0);
+    create_header("DSP!", 4, &&do_dsp_store);
+    create_header("RSP0", 4, &&do_rsp0);
+    create_header("RSP!", 4, &&do_rsp_store);
+    create_header("FSP0", 4, &&do_fsp0);
+    create_header("FSP!", 4, &&do_fsp_store);
 
     // Stack manipulation
     create_header(".", 1, &&do_dot);
@@ -612,14 +620,11 @@ run(void) {
     #include "primitives.inc"
 
     xt_interpret: {
-        char *tok;
-        uint8_t tok_len;
-
         while (!parse_token(&tok, &tok_len)) {
             if (!refill()) return;
         }
 
-        word_t *w = find(tok, tok_len);
+        w = find(tok, tok_len);
         if (w) {
             // if we're compiling a regular word, add it to the current definition
             if (state == COMPILE && !w_is_immediate(w)) {

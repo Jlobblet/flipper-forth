@@ -44,15 +44,30 @@
     do_here:
         dpush((cell)here);
         NEXT();
-    do_abort:
-        // Clear the data, float, and return stacks,
-        // go back to interpret mode, and go back to
-        // the outer interpreter
-        dsp = dstack;
-        rsp = rstack;
-        fsp = fstack;
-        state = INTERPRET;
-        goto xt_interpret;
+    do_bye:
+        exit(EXIT_SUCCESS);
+        // No NEXT(); because we just left the program
+
+    // Stacks
+    // ------
+    do_dsp0:
+        dpush((cell)dstack);
+        NEXT();
+    do_dsp_store:
+        dsp = (cell *)dpop();
+        NEXT();
+    do_rsp0:
+        dpush((cell)rstack);
+        NEXT();
+    do_rsp_store:
+        rsp = (cell *)dpop();
+        NEXT();
+    do_fsp0:
+        dpush((cell)fstack);
+        NEXT();
+    do_fsp_store:
+        fsp = (real *)dpop();
+        NEXT();
 
     // Stack manipulation
     // ------------------

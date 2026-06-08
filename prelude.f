@@ -154,8 +154,10 @@ ALIAS NB. \
 
 \ Firstly, we need the level stack
 32 ARRAY LSTACK
-0 LSTACK VARIABLE! LSP
+0 LSTACK CONSTANT LSP0
+LSP0 VARIABLE! LSP
 
+: LSP! LSP ! ;
 : LSTACK-EMPTY? 0 LSTACK LSP @ >= ;
 : LSP++ ( -- a ) LSP PTR++ ;
 : --LSP ( -- a ) LSP --PTR ;
@@ -164,9 +166,6 @@ ALIAS NB. \
 : LPUSH ( xt L -- ) (L: -- xt L ) SWAP >LSP >LSP ;
 : LPOP ( -- xt L ) (L: xt L -- ) LSP> LSP> SWAP ;
 : L@ ( -- a ) (L: a -- a ) LSP @ CELL - @ ;
-
-\ We also need to amend ABORT to reset LSP now
-: ABORT ABORT 0 LSTACK LSP ! ;
 
 \ Now, we need somewhere to store the EXPR-specific operators: its own
 \ dictionary, essentially. We do this with four parallel arrays for the address xt,
@@ -281,7 +280,7 @@ VARIABLE EXPR-BAD
     THEN
   UNTIL
   \ Restore RSP
-  R> LSP !
+  R> LSP!
   ; IMMEDIATE
 
 ' <  1 :LEVEL <
@@ -312,7 +311,6 @@ HIDE --LSP HIDE >LSP HIDE LSP> HIDE LPUSH
 HIDE LPOP HIDE L@ HIDE LDICT-SIZE HIDE LDICT-XT
 HIDE LDICT-L HIDE LDICT-A HIDE LDICT-N HIDE (LEVEL)
 HIDE SHUNT-XT HIDE SHUNT-L HIDE (SHUNT) HIDE DISPATCH-TOKEN
-HIDE EXPR-BAD
 
 
 \ Outer interpreter
@@ -341,13 +339,26 @@ HIDE EXPR-BAD
   ." ? " TYPE CR ;
 
 : QUIT ( -- )
+  \ Start by resetting to interpret mode and clearing the return stack
+  0 STATE !
+  RSP0 RSP!
   BEGIN
     NEXT-TOKEN
     \ ( addr u ) on the stack: u=0 is the end of input so we use that for the condition
     DUP
-  WHILE
+    0= IF BYE THEN
     INTERPRET-TOKEN
-  REPEAT 2DROP ;
+  AGAIN ;
+
+\ Now we need a way to unset everything on failure
+\ End with QUIT to return to the main interpreter
+: ABORT ( -- )
+  DSP0 DSP!
+  FSP0 FSP!
+  F EXPR-BAD !
+  LSP0 LSP!
+  QUIT ;
+HIDE EXPR-BAD
 
 \ Finally, run it!
 QUIT
