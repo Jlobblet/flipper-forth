@@ -330,6 +330,10 @@ HIDE SHUNT-XT HIDE SHUNT-L HIDE (SHUNT) HIDE DISPATCH-TOKEN
   INTERPRET-TOKEN is extracted to a separate word so we can take advantage of
   calling EXIT to early-return inside the word, which means the IF ladder doesn't
   need to be nested.
+
+  It's easiest to bootstrap at the end since we depend on T/F (CONSTANT),
+  comments, RUN-OR-COMPILE, EXPR (although ABORT could be redefined), ".,
+  CR, etc.
 )
 
 : INTERPRET-TOKEN ( addr u -- )
