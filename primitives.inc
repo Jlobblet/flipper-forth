@@ -74,15 +74,16 @@
     // ( a -- )
     do_dot:
         sa = (scell)dpop();
-        printf("%" PRIdPTR "\n", sa);
+        printf("%" PRIdPTR " ", sa);
         NEXT();
     // ( a -- )
     do_dot_x:
         a = dpop();
-        printf("0X%" PRIXPTR "\n", a);
+        printf("0X%" PRIXPTR " ", a);
     // ( -- )
     do_print_stack:
-        for (cell *p = dstack; p < dsp; p++) printf("%" PRIdPTR "\n", (scell)*p);
+        for (cell *p = dstack; p < dsp; p++) printf("%" PRIdPTR " ", (scell)*p);
+        putc('\n', stdout);
         NEXT();
     // (F: a -- )
     do_fdot:
