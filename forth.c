@@ -492,6 +492,10 @@ run(void) {
     create_header(">=", 2, &&do_gte);
     create_header("=", 1, &&do_eq);
     create_header("<>", 2, &&do_neq);
+    create_header("U<", 2, &&do_ult);
+    create_header("U<=", 3, &&do_ulte);
+    create_header("U>", 2, &&do_ugt);
+    create_header("U>=", 3, &&do_ugte);
     create_header("1+", 2, &&do_1p);
     create_header("1-", 2, &&do_1m);
     create_header("2+", 2, &&do_2p);

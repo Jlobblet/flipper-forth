@@ -10,7 +10,13 @@
         dpush((cell)(sa op sb));\
         NEXT();
 
-#define CMPBINOP(op)\
+#define UCMPBINOP(op)\
+        b = dpop();\
+        a = dpop();\
+        dpush(FBOOL(a op b));\
+        NEXT();
+
+#define SCMPBINOP(op)\
         sb = (scell)dpop();\
         sa = (scell)dpop();\
         dpush(FBOOL(sa op sb));\
@@ -197,12 +203,16 @@
     do_minus: SBINOP(-)
     do_mul: SBINOP(*)
     do_div: SBINOP(/)
-    do_lt: CMPBINOP(<)
-    do_lte: CMPBINOP(<=)
-    do_gt: CMPBINOP(>)
-    do_gte: CMPBINOP(>=)
-    do_eq: CMPBINOP(==)
-    do_neq: CMPBINOP(!=)
+    do_lt: SCMPBINOP(<)
+    do_lte: SCMPBINOP(<=)
+    do_gt: SCMPBINOP(>)
+    do_gte: SCMPBINOP(>=)
+    do_eq: SCMPBINOP(==)
+    do_neq: SCMPBINOP(!=)
+    do_ult: SCMPBINOP(<)
+    do_ulte: SCMPBINOP(<=)
+    do_ugt: SCMPBINOP(>)
+    do_ugte: SCMPBINOP(>=)
     // These are for efficiency - better as code words than colon owrds
     // ( n -- n+1 )
     do_1p:
