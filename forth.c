@@ -520,6 +520,8 @@ run(void) {
     create_header("OR", 2, &&do_or);
     create_header("XOR", 3, &&do_xor);
     create_header("INVERT", 6, &&do_invert);
+    create_header("LSHIFT", 6, &&do_lshift);
+    create_header("RSHIFT", 6, &&do_rshift);
 
     // Strings
     word_t *w_s_quo = create_header("S\"", 2, &&do_s_quo);

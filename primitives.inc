@@ -264,6 +264,14 @@
     do_invert:
         dpush(~dpop());
         NEXT();
+    do_lshift:
+        *(dsp - 2) <<= *(dsp - 1);
+        dsp--;
+        NEXT();
+    do_rshift:
+        *(dsp - 2) >>= *(dsp - 1);
+        dsp--;
+        NEXT();
 
     // Strings
     // -------
