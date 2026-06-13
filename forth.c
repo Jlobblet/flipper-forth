@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/errno.h>
+#include <time.h>
 
 #define NAME_MAX 16
 #define DICT_SIZE 32768
@@ -446,6 +447,7 @@ run(void) {
     create_header("STATE", 5, &&do_state);
     create_header("HERE", 4, &&do_here);
     create_header("BYE", 3, &&do_bye);
+    create_header("US", 2, &&do_us);
 
     // Stacks
     create_header("DSP0", 4, &&do_dsp0);

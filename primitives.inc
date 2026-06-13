@@ -53,6 +53,12 @@
     do_bye:
         exit(EXIT_SUCCESS);
         // No NEXT(); because we just left the program
+    do_us: {
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+        dpush((scell)((cell)ts.tv_sec * 1000000u + (cell)ts.tv_nsec / 1000u));
+        NEXT();
+    }
 
     // Stacks
     // ------
