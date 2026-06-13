@@ -486,6 +486,10 @@ run(void) {
     create_header("-", 1, &&do_minus);
     create_header("*", 1, &&do_mul);
     create_header("/", 1, &&do_div);
+    create_header("U+", 2, &&do_uplus);
+    create_header("U-", 2, &&do_uminus);
+    create_header("U*", 2, &&do_umul);
+    create_header("U/", 2, &&do_udiv);
     create_header("<", 1, &&do_lt);
     create_header("<=", 2, &&do_lte);
     create_header(">", 1, &&do_gt);
