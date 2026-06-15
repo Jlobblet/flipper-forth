@@ -130,6 +130,7 @@ ALIAS NB. \
   ." ? " TYPE CR                F ;
 
 : HIDES BEGIN PARSE-NAME HIDES-DISPATCH UNTIL ;
+HIDE HIDES-DISPATCH
 
 \ EXPR implementation
 \ -------------------
