@@ -452,6 +452,11 @@
         a = dpop();
         dpush(FBOOL(w_is_immediate((word_t *)a)));
         NEXT();
+    // ( xt -- )
+    do_set_hidden:
+        w = (word_t *)(dpop());
+        w_set_hidden(w);
+        NEXT();
     do_hide:
         WORD("Expected name after HIDE\n");
         w = find(tok, tok_len);

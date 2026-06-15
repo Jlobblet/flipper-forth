@@ -568,6 +568,7 @@ run(void) {
     w_set_immediate(w_postpone);
     create_header("IMMEDIATE", 9, &&do_immediate);
     create_header("IMMEDIATE?", 10, &&do_is_immediate);
+    create_header("(HIDE)", 6, &&do_set_hidden);
     create_header("HIDE", 4, &&do_hide);
     create_header("FIND", 4, &&do_find);
     create_header("SEE", 3, &&do_see);
