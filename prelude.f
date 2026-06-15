@@ -124,7 +124,7 @@ ALIAS NB. \
   REPEAT 3DROP T ;
 
 \ Convenience to hide many things
-: HIDES-DISPATCH ( addr len -- )
+: HIDES-DISPATCH ( addr len -- ? )
   2DUP S" ;HIDES" S= IF 2DROP   T EXIT THEN
   FIND               IF (HIDE)  F EXIT THEN
   ." ? " TYPE CR                F ;
