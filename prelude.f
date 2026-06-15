@@ -253,8 +253,8 @@ VARIABLE EXPR-BAD
   2DUP S" ;EXPR" S= IF 2DROP ;EXPR                          T EXIT THEN
   2DUP S" ["     S= IF 2DROP PAREN-XT SENTINEL-LEVEL LPUSH  F EXIT THEN
   2DUP S" ]"     S= IF 2DROP ]EXPR                          F EXIT THEN
-  FIND-LEVEL IF (SHUNT)                                     F EXIT THEN
-  FIND       IF RUN-OR-COMPILE                              F EXIT THEN
+  FIND-LEVEL IF   (SHUNT)                                   F EXIT THEN
+  FIND       IF 1 (SHUNT)                                   F EXIT THEN
   2DUP >NUMBER IF NIP NIP STATE @ IF LIT-COMPILE  THEN      F EXIT THEN
   2DUP >REAL   IF 2DROP   STATE @ IF FLIT-COMPILE THEN      F EXIT THEN
   ." ? " TYPE CR T EXPR-BAD !                               F ;
