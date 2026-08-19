@@ -77,19 +77,19 @@ typedef struct word {
 } word_t;
 
 #define GET_FLAG(name, offset)\
-    cell\
+    static cell\
     name(word_t *w) {\
         return FBOOL(0 != (w->flags & 1 << offset));\
     }
 
 #define SET_FLAG(name, offset)\
-    void\
+    static void\
     name(word_t *w) {\
         w->flags |= 1 << offset;\
     }
 
 #define CLEAR_FLAG(name, offset)\
-    void\
+    static void\
     name(word_t *w) {\
         w->flags &= ~(1 << offset);\
     }
