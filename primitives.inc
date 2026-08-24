@@ -584,8 +584,9 @@
     // Control flow
     // ------------
     do_branch:
-        // Update IP to cell location
-        IP = (cell *)*IP;
+        // Modify IP by the value currently stored in it
+        // Cast through a uint8_t because we need to manipulate the raw pointer value; not cell-sized
+        IP = (cell *)((uint8_t *)IP + (cell)*IP);
         NEXT();
     do_0branch:
         // Only branch if dpop is zero
@@ -599,9 +600,10 @@
         comma(0);
         NEXT();
     do_then:
-        // Retrieve the location to patch from stack and then update it with the new here
+        // Retrieve the location of the data after 0branch from the stack, and then
+        // patch that location with the difference between here and there
         a = dpop();
-        *(cell *)a = (cell)here;
+        *(cell *)a = (cell)here - a;
         NEXT();
     do_else:
         // Store new branch word and placeholder
@@ -610,7 +612,7 @@
         comma(0);
         // Update previous IF to jump to here
         a = dpop();
-        *(cell *)a = (cell)here;
+        *(cell *)a = (cell)here - a;
         // Finally, push the new patch location
         dpush(b);
         NEXT();
@@ -622,12 +624,12 @@
         // Insert a branch to the stored location
         a = dpop();
         comma((cell)w_branch);
-        comma(a);
+        comma(a - (cell)here);
         NEXT();
     do_until:
         a = dpop();
         comma((cell)w_0branch);
-        comma(a);
+        comma(a - (cell)here);
         NEXT();
     do_while:
         comma((cell)w_0branch);
@@ -640,8 +642,8 @@
         // Begin target
         b = dpop();
         comma((cell)w_branch);
-        comma(b);
-        *(cell *)a = (cell)here;
+        comma(b - (cell)here);
+        *(cell *)a = (cell)here - a;
         NEXT();
 
     // Parsing
