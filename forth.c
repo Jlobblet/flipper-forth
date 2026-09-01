@@ -440,7 +440,7 @@ run(void) {
     real fa, fb;
     char c, *tok;
     uint8_t tok_len, *ptr;
-    word_t *w;
+    word_t *w, *ww;
 
     // Interpreter
     word_t *w_halt = create_header("HALT", 4, &&do_halt);

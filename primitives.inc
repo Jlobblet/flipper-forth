@@ -509,17 +509,17 @@
         // Walk the threaded body until EXIT.
         p = q = (cell *)w->body;
         while (*p != (cell)w_exit) {
-            w = (word_t *)*p++;
+            ww = (word_t *)*p++;
             if (!w) {
                 printf(" <null>");
                 continue;
             }
-            printf(" %.*s", w->length, w->name);
-            if (w == w_lit)
+            printf(" %.*s", ww->length, ww->name);
+            if (ww == w_lit)
                 printf(" %" PRIdPTR, (scell)*p++);
-            else if (w == w_branch || w == w_0branch)
+            else if (ww == w_branch || ww == w_0branch)
                 printf(" [%+ld]", (long)((cell *)*p++ - q));
-            else if (w == w_s_quo_runtime) {
+            else if (ww == w_s_quo_runtime) {
                 a = *p++;
                 printf(" \"%.*s\"", (int)a, (char *)p);
                 ptr = (uint8_t *)p + a;
