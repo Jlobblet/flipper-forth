@@ -63,6 +63,7 @@ typedef struct word {
     // Offset | Name      | Meaning
     //      0 | Immediate | Run this word as soon as encountered, even in compile mode
     //      1 | Hidden    | Hide this word from find
+    //      2 | Inline    | During compilation, inline this word's body to the caller
     uint8_t flags;
     // Length of the name. NB NAME_MAX may be less than UINT8_MAX
     uint8_t length;
@@ -101,6 +102,7 @@ typedef struct word {
 
 FLAGS(w_is_immediate, w_set_immediate, w_clear_immediate, 0)
 FLAGS(w_is_hidden, w_set_hidden, w_clear_hidden, 1)
+FLAGS(w_is_inline, w_set_inline, w_clear_inline, 2)
 
 typedef struct input_source {
     const char *data;  // characters to parse
@@ -567,7 +569,9 @@ run(void) {
     word_t *w_postpone = create_header("POSTPONE", 8, &&do_postpone);
     w_set_immediate(w_postpone);
     create_header("IMMEDIATE", 9, &&do_immediate);
+    create_header("INLINE", 6, &&do_inline);
     create_header("IMMEDIATE?", 10, &&do_is_immediate);
+    create_header("INLINE?", 7, &&do_is_inline);
     create_header("(HIDE)", 6, &&do_set_hidden);
     create_header("HIDE", 4, &&do_hide);
     create_header("FIND", 4, &&do_find);
@@ -641,7 +645,27 @@ run(void) {
         if (w) {
             // if we're compiling a regular word, add it to the current definition
             if (state == COMPILE && !w_is_immediate(w)) {
-                comma((cell)w);
+                if (w_is_inline(w) && w->code == &&do_docol) {
+                    p = q = (cell *)w->body;
+                    // Walk the body until we find exit
+                    while (*p != (cell)w_exit) {
+                        w = (word_t *)*p++;
+                        // skip literals, branches, and 0branches
+                        if (w == w_lit || w == w_branch || w == w_0branch) p++;
+                        // skip strings
+                        else if (w == w_s_quo_runtime) {
+                            a = *p++;
+                            ptr = (uint8_t *)p + a;
+                            PTR_ALIGN();
+                            p = (cell *)ptr;
+                        }
+                    }
+                    align();
+                    a = (uint8_t *)p - (uint8_t *)q;
+                    memcpy(here, q, a);
+                    here += a;
+                } else
+                    comma((cell)w);
                 goto xt_interpret;
             }
             // execute it

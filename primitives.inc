@@ -447,10 +447,17 @@
     do_immediate:
         w_set_immediate(latest);
         NEXT();
+    do_inline:
+        w_set_inline(latest);
+        NEXT();
     // ( xt -- ? )
     do_is_immediate:
         a = dpop();
         dpush(FBOOL(w_is_immediate((word_t *)a)));
+        NEXT();
+    do_is_inline:
+        a = dpop();
+        dpush(FBOOL(w_is_inline((word_t *)a)));
         NEXT();
     // ( xt -- )
     do_set_hidden:
@@ -490,6 +497,9 @@
                 printf("  ( primitive )");
             if (w_is_immediate(w))
                 printf(" IMMEDIATE");
+            if (w_is_inline(w))
+                // this should be unreachable, but future-proofding
+                printf(" INLINE");
             if (w_is_hidden(w))
                 printf(" ( hidden )");
             printf("\n");
@@ -519,6 +529,7 @@
         }
         printf(" ;");
         if (w_is_immediate(w)) printf(" IMMEDIATE");
+        if (w_is_inline(w)) printf(" INLINE");
         printf("\n");
         NEXT();
     do_words:
