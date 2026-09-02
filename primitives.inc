@@ -34,6 +34,10 @@
         dpush(FBOOL(fa op fb));\
         NEXT();
 
+#define FCONSTANT(cons)\
+        fpush(cons);\
+        NEXT();
+
 #define WORD(e) do { if (!word(&tok, &tok_len, e)) goto xt_interpret; } while(0)
 #define PTR_ALIGN() do { while ((uintptr_t)ptr % sizeof(cell)) ptr++; } while(0)
 
@@ -277,9 +281,22 @@
     do_fgte: FCMPBINOP(>=)
     do_feq: FCMPBINOP(=)
     do_fneq: FCMPBINOP(!=)
-    do_pi:
-        fpush(M_PI);
-        NEXT();
+
+    // Floating-point constants
+    // ------------------------
+    do_1_pi: FCONSTANT(M_1_PI)
+    do_2_pi: FCONSTANT(M_2_PI)
+    do_2_sqrtpi: FCONSTANT(M_2_SQRTPI)
+    do_e: FCONSTANT(M_E)
+    do_pi: FCONSTANT(M_PI)
+    do_ln2: FCONSTANT(M_LN2)
+    do_ln10: FCONSTANT(M_LN10)
+    do_log2e: FCONSTANT(M_LOG2E)
+    do_log10e: FCONSTANT(M_LOG10E)
+    do_pi_2: FCONSTANT(M_PI_2)
+    do_pi_4: FCONSTANT(M_PI_4)
+    do_sqrt1_2: FCONSTANT(M_SQRT1_2)
+    do_sqrt2: FCONSTANT(M_SQRT2)
 
     // Bitwise combinators
     do_and: BINOP(&)

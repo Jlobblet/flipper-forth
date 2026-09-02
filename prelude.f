@@ -97,6 +97,9 @@ ALIAS NB. \
   WHILE -ROT SWAP TUCK + SWAP ROT 1-
   REPEAT DROP NIP ;
 
+\ Floating-point constants
+2.0 PI F* FCONSTANT TAU
+
 \ Store a counted string in the dictionary
 : STRING, ( addr u -- a )
   HERE -ROT            ( a addr u )

@@ -527,7 +527,21 @@ run(void) {
     create_header("F>=", 3, &&do_fgte);
     create_header("F=", 2, &&do_feq);
     create_header("F<>", 3, &&do_fneq);
+
+    // Floating-point constants
+    create_header("1/PI", 4, &&do_1_pi);
+    create_header("2/PI", 4, &&do_2_pi);
+    create_header("2/SQRTPI", 8, &&do_2_sqrtpi);
+    create_header("E", 1, &&do_e);
     create_header("PI", 2, &&do_pi);
+    create_header("LN2", 3, &&do_ln2);
+    create_header("LN10", 4, &&do_ln10);
+    create_header("LOG2E", 5, &&do_log2e);
+    create_header("LOG10E", 6, &&do_log10e);
+    create_header("PI/2", 4, &&do_pi_2);
+    create_header("PI/4", 4, &&do_pi_4);
+    create_header("1/SQRT2", 7, &&do_sqrt1_2);
+    create_header("SQRT2", 5, &&do_sqrt2);
 
     // Bitwise combinators
     create_header("AND", 3, &&do_and);
