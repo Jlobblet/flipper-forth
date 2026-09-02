@@ -277,6 +277,9 @@
     do_fgte: FCMPBINOP(>=)
     do_feq: FCMPBINOP(=)
     do_fneq: FCMPBINOP(!=)
+    do_pi:
+        fpush(M_PI);
+        NEXT();
 
     // Bitwise combinators
     do_and: BINOP(&)

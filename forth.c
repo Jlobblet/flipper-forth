@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <inttypes.h>
+#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -526,6 +527,7 @@ run(void) {
     create_header("F>=", 3, &&do_fgte);
     create_header("F=", 2, &&do_feq);
     create_header("F<>", 3, &&do_fneq);
+    create_header("PI", 2, &&do_pi);
 
     // Bitwise combinators
     create_header("AND", 3, &&do_and);
