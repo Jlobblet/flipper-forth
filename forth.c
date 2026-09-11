@@ -529,6 +529,7 @@ run(void) {
     create_header("F>=", 3, &&do_fgte);
     create_header("F=", 2, &&do_feq);
     create_header("F<>", 3, &&do_fneq);
+    create_header("FPOW", 4, &&do_fpow);
 
     // Floating-point constants
     create_header("1/PI", 4, &&do_1_pi);

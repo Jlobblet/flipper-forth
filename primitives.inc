@@ -307,6 +307,11 @@
     do_fgte: FCMPBINOP(>=)
     do_feq: FCMPBINOP(=)
     do_fneq: FCMPBINOP(!=)
+    do_fpow:
+        fb = fpop();
+        fa = fpop();
+        fpush((real)pow((double)fa, (double)fb));
+        NEXT();
 
     // Floating-point constants
     // ------------------------

@@ -322,6 +322,7 @@ VARIABLE EXPR-BAD
 ' F- 2 :LEVEL F-
 ' F* 3 :LEVEL F*
 ' F/ 3 :LEVEL F/
+' FPOW 4 :RLEVEL F^
 
 \ We can now hide the internals
 HIDES
