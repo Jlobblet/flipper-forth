@@ -180,28 +180,31 @@ LSP0 VARIABLE! LSP
 : L@ ( -- a ) (L: a -- a ) LSP @ CELL - @ ;
 
 \ Now, we need somewhere to store the EXPR-specific operators: its own
-\ dictionary, essentially. We do this with four parallel arrays for the address xt,
-\ level L, and name address a as a counted string.
+\ dictionary, essentially. We do this with five parallel arrays for the address xt,
+\ level L, name address a as a counted string, and whether the word is right-associative or not.
 256 CONSTANT LDICT-SIZE
 LDICT-SIZE  ARRAY LDICT-XT
 LDICT-SIZE CARRAY LDICT-L
 LDICT-SIZE  ARRAY LDICT-A
+LDICT-SIZE  ARRAY LDICT-R?
 VARIABLE LDICT-N
 
 \ Store a new level word into the level dict
-: (LEVEL) ( xt L addr u -- )
-  CSTRING, ( xt L c-addr )
-  LDICT-N @ ( xt L c-addr n )
-  TUCK LDICT-A ! ( xt L n )
+: (LEVEL) ( xt L r? addr u -- )
+  CSTRING, ( xt L r? c-addr )
+  LDICT-N @ ( xt L r? c-addr n )
+  TUCK LDICT-A ! ( xt L r? n )
+  TUCK LDICT-R? ! ( xt L n )
   TUCK LDICT-L C! ( xt n )
   TUCK LDICT-XT ! ( n )
   1+ LDICT-N ! ;
 
 \ As above, but PARSE-NAME to get the next token instead of needing a string
-: :LEVEL PARSE-NAME (LEVEL) ;
+: :LEVEL F PARSE-NAME (LEVEL) ;
+: :RLEVEL T PARSE-NAME (LEVEL) ;
 
 \ Find a level word in the level dict
-: FIND-LEVEL ( addr u -- xt L true | addr u false )
+: FIND-LEVEL ( addr u -- xt L r? true | addr u false )
   LDICT-N @ >R  \ stash the limit on the return stack
   0
   BEGIN DUP R@ < WHILE
@@ -212,8 +215,9 @@ VARIABLE LDICT-N
     S= IF                    ( addr u )
     2DROP R> DUP             ( i i )
     LDICT-XT @               ( i xt )
-    SWAP LDICT-L C@          ( xt L )
-    R> DROP T EXIT           ( xt L true )
+    SWAP DUP LDICT-L C@      ( xt i L )
+    SWAP LDICT-R? @          ( xt L r? )
+    R> DROP T EXIT           ( xt L r? true )
     THEN
     R> 1+
   REPEAT DROP R> DROP F ;  \ remove i and the limit, add false
@@ -225,10 +229,11 @@ VARIABLE LDICT-N
 \ This means the function is *not* re-entrant. Probably fine!
 VARIABLE SHUNT-XT
 VARIABLE SHUNT-L
-: (SHUNT) ( xt L -- )
-  SHUNT-L ! SHUNT-XT !
+VARIABLE SHUNT-R?
+: (SHUNT) ( xt L r? -- )
+  SHUNT-R? ! SHUNT-L ! SHUNT-XT !
   BEGIN
-    LSTACK-EMPTY? IF F ELSE L@ SHUNT-L @ >= THEN
+    LSTACK-EMPTY? IF F ELSE L@ SHUNT-L @ SHUNT-R? @ IF > ELSE >= THEN THEN
   WHILE
     LPOP DROP RUN-OR-COMPILE
   REPEAT
@@ -265,8 +270,8 @@ VARIABLE EXPR-BAD
   2DUP S" ;EXPR" S= IF 2DROP ;EXPR                          T EXIT THEN
   2DUP S" ["     S= IF 2DROP PAREN-XT SENTINEL-LEVEL LPUSH  F EXIT THEN
   2DUP S" ]"     S= IF 2DROP ]EXPR                          F EXIT THEN
-  FIND-LEVEL IF   (SHUNT)                                   F EXIT THEN
-  FIND       IF 1 (SHUNT)                                   F EXIT THEN
+  FIND-LEVEL IF     (SHUNT)                                 F EXIT THEN
+  FIND       IF F 1 (SHUNT)                                 F EXIT THEN
   2DUP >NUMBER IF NIP NIP STATE @ IF LIT-COMPILE  THEN      F EXIT THEN
   2DUP >REAL   IF 2DROP   STATE @ IF FLIT-COMPILE THEN      F EXIT THEN
   ." ? " TYPE CR T EXPR-BAD !                               F ;
@@ -305,6 +310,7 @@ VARIABLE EXPR-BAD
 ' - 2 :LEVEL -
 ' * 3 :LEVEL *
 ' / 3 :LEVEL /
+' POW 4 :RLEVEL ^
 
 ' F<  1 :LEVEL F<
 ' F<= 1 :LEVEL F<=

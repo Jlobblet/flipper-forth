@@ -436,7 +436,7 @@ run(void) {
 
     cell *IP;
     cell *W;
-    cell a, b, *p, *q;
+    cell a, b, aa, bb, *p, *q;
     scell sa, sb;
     real fa, fb;
     char c, *tok;
@@ -495,6 +495,8 @@ run(void) {
     create_header("U-", 2, &&do_uminus);
     create_header("U*", 2, &&do_umul);
     create_header("U/", 2, &&do_udiv);
+    create_header("POW", 3, &&do_pow);
+    create_header("MODPOW", 6, &&do_modpow);
     create_header("<", 1, &&do_lt);
     create_header("<=", 2, &&do_lte);
     create_header(">", 1, &&do_gt);

@@ -217,6 +217,32 @@
     do_uminus: BINOP(-)
     do_umul: BINOP(*)
     do_udiv: BINOP(/)
+    do_pow:
+        b = dpop();  // exp
+        a = dpop();  // base
+        aa = 1;      // result
+        while (b) {
+            if (b & 1)
+                aa *= a;
+            a *= a;
+            b >>= 1;
+        }
+        dpush(aa);
+        NEXT();
+    do_modpow:
+        bb = dpop();  // mod
+        b = dpop();   // exp
+        a = dpop();   // base
+        aa = 1;       // result
+        a %= bb;
+        while (b) {
+            if (b & 1)
+                aa = (aa * a) % bb;
+            a = (a * a) % bb;
+            b >>= 1;
+        }
+        dpush(aa);
+        NEXT();
     do_lt: SCMPBINOP(<)
     do_lte: SCMPBINOP(<=)
     do_gt: SCMPBINOP(>)
