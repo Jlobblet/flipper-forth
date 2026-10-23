@@ -52,7 +52,7 @@
         dpush((cell)&state);
         NEXT();
     do_here:
-        dpush((cell)here);
+        dpush((cell)&here);
         NEXT();
     do_latest:
         dpush((cell)&latest);

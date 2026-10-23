@@ -112,14 +112,14 @@ ALIAS NB. \
 
 \ Store a counted string in the dictionary
 : STRING, ( addr u -- a )
-  HERE -ROT            ( a addr u )
+  HERE @ -ROT            ( a addr u )
   BEGIN DUP WHILE
     OVER C@ C,
     1- SWAP 1+ SWAP
   REPEAT 2DROP ;
 
 \ Counted strings: store a length byte then the string after
-: CSTRING, ( addr u -- c-addr ) HERE -ROT DUP C, STRING, DROP ;
+: CSTRING, ( addr u -- c-addr ) HERE @ -ROT DUP C, STRING, DROP ;
 
 \ Look up a counted string in regular string format
 : COUNT ( c-addr -- addr u )  DUP 1+ SWAP C@ ;
@@ -251,8 +251,8 @@ VARIABLE SHUNT-R?
 
 \ Sentinels for EXPR and [
 0 CONSTANT SENTINEL-LEVEL
-HERE CONSTANT EXPR-XT  1 ALLOT
-HERE CONSTANT PAREN-XT 1 ALLOT
+HERE @ CONSTANT EXPR-XT  1 ALLOT
+HERE @ CONSTANT PAREN-XT 1 ALLOT
 
 VARIABLE SEN-XT
 VARIABLE EXPR-BAD
