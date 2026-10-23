@@ -22,6 +22,7 @@
 \ Now we have line comments too!
 
 \ Words for entering compile mode for immediate execution
+\ State 0 = interpret, 1 = compile
 : [ 0 STATE ! ; IMMEDIATE
 : ] 1 STATE ! ;
 : [: :NONAME ; IMMEDIATE
