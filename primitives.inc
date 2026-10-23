@@ -569,7 +569,7 @@
             if (ww == w_lit)
                 printf(" %" PRIdPTR, (scell)*p++);
             else if (ww == w_branch || ww == w_0branch)
-                printf(" [%+ld]", (long)((cell *)*p++ - q));
+                printf(" [%+ld]", (long)((cell *)*p++));
             else if (ww == w_s_quo_runtime) {
                 a = *p++;
                 printf(" \"%.*s\"", (int)a, (char *)p);
