@@ -465,6 +465,10 @@ run(void) {
     create_header(".", 1, &&do_dot);
     create_header(".X", 2, &&do_dot_x);
     create_header(".S", 2, &&do_print_stack);
+    create_header("R.", 2, &&do_r_dot);
+    create_header("R.X", 3, &&do_r_dot_x);
+    create_header("R.S", 3, &&do_print_rstack);
+    create_header("R.SX", 4, &&do_print_rstack_x);
     create_header("F.", 2, &&do_fdot);
     create_header("F.S", 3, &&do_print_fstack);
     create_header("DUP", 3, &&do_dup);

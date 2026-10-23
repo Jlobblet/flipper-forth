@@ -104,6 +104,24 @@
         for (cell *p = dstack; p < dsp; p++) printf("%" PRIdPTR " ", (scell)*p);
         putc('\n', stdout);
         NEXT();
+    // (R: a -- )
+    do_r_dot:
+        a = rpop();
+        printf("%" PRIdPTR " ", sa);
+        NEXT();
+    // (R: a -- )
+    do_r_dot_x:
+        a = rpop();
+        printf("0X%" PRIXPTR " ", sa);
+        NEXT();
+    do_print_rstack:
+        for (cell *p = rstack; p < rsp; p++) printf("%" PRIdPTR " ", (scell)*p);
+        putc('\n', stdout);
+        NEXT();
+    do_print_rstack_x:
+        for (cell *p = rstack; p < rsp; p++) printf("0X%" PRIXPTR " ", (scell)*p);
+        putc('\n', stdout);
+        NEXT();
     // (F: a -- )
     do_fdot:
         fa = fpop();
