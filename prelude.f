@@ -21,7 +21,7 @@
 
 \ Now we have line comments too!
 
-: FORGETLAST LATEST @ DUP W>LINK LATEST ! HERE ! ;
+: FORGETLAST LATEST @ DUP @ LATEST ! HERE ! ;
 
 \ Words for entering compile mode for immediate execution
 \ State 0 = interpret, 1 = compile
