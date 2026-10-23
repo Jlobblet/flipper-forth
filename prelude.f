@@ -64,6 +64,8 @@ ALIAS NB. \
     DUP IMMEDIATE? IF EXECUTE ELSE , THEN
   ELSE EXECUTE THEN ;
 
+: RECURSE LATEST @ , ; IMMEDIATE
+
 \ Words for manipulating array and carray pointers
 : PTR++ ( a -- a++ ) DUP @ DUP CELL + ROT ! ;
 : --PTR ( a -- --a ) DUP @ CELL - DUP ROT ! ;

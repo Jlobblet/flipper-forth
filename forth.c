@@ -449,6 +449,7 @@ run(void) {
     create_header("EXECUTE", 7, &&do_execute);
     create_header("STATE", 5, &&do_state);
     create_header("HERE", 4, &&do_here);
+    create_header("LATEST", 6, &&do_latest);
     create_header("BYE", 3, &&do_bye);
     create_header("US", 2, &&do_us);
 

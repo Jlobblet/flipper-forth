@@ -54,6 +54,9 @@
     do_here:
         dpush((cell)here);
         NEXT();
+    do_latest:
+        dpush((cell)&latest);
+        NEXT();
     do_bye:
         exit(EXIT_SUCCESS);
         // No NEXT(); because we just left the program
