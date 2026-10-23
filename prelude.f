@@ -94,10 +94,17 @@ ALIAS NB. \
   REPEAT DROP ;
 
 : FIB ( n -- F_n )
-  1 0 ROT
-  BEGIN DUP
-  WHILE -ROT SWAP TUCK + SWAP ROT 1-
-  REPEAT DROP NIP ;
+  1 0 ROT    ( 1 0 n )
+  BEGIN DUP  ( b a k k )
+  WHILE      ( b a k )
+    -ROT     ( k b a )
+    SWAP     ( k a b )
+    TUCK     ( k b a b )
+    +        ( k b a+b )
+    SWAP     ( k a+b b )
+    ROT      ( a+b b k )
+    1-       ( a+b b k-1 )
+  REPEAT DROP NIP ( b ) ;
 
 \ Floating-point constants
 2.0 PI F* FCONSTANT TAU
