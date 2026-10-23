@@ -99,6 +99,7 @@
     do_dot_x:
         a = dpop();
         printf("0X%" PRIXPTR " ", a);
+        NEXT();
     // ( -- )
     do_print_stack:
         for (cell *p = dstack; p < dsp; p++) printf("%" PRIdPTR " ", (scell)*p);
