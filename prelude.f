@@ -19,21 +19,6 @@
 
 : \ 0XA PARSE 2DROP ; IMMEDIATE
 
-\ Now we have line comments too!
-
-: FORGETLAST LATEST @ DUP @ LATEST ! HERE ! ;
-
-\ Words for entering compile mode for immediate execution
-\ State 0 = interpret, 1 = compile
-: [ 0 STATE ! ; IMMEDIATE
-: ] 1 STATE ! ;
-: [: :NONAME ; IMMEDIATE
-: ;] POSTPONE EXIT POSTPONE [ EXECUTE FORGETLAST ; IMMEDIATE
-
-\ Cheap word for creating aliases
-: ALIAS ( "newname" "oldname" -- ) CREATE ' , DOES> @ EXECUTE ;
-ALIAS NB. \
-
 : ? ( addr -- ) @ . ;
 : C? ( addr -- ) C@ . ;
 : CELLS ( n -- n_c ) CELL * ;
@@ -60,6 +45,23 @@ ALIAS NB. \
       2DROP REFILL 0= IF 0 0 T ELSE F THEN
     THEN
   UNTIL ;
+
+\ Now we have line comments too!
+
+: FORGETX DUP @ LATEST ! HERE ! ;
+: FORGETLAST LATEST FORGETX ;
+: FORGET NEXT-TOKEN FIND IF FORGETX ELSE 2DROP THEN ;
+
+\ Words for entering compile mode for immediate execution
+\ State 0 = interpret, 1 = compile
+: [ 0 STATE ! ; IMMEDIATE
+: ] 1 STATE ! ;
+: [: :NONAME ; IMMEDIATE
+: ;] POSTPONE EXIT POSTPONE [ EXECUTE FORGETLAST ; IMMEDIATE
+
+\ Cheap word for creating aliases
+: ALIAS ( "newname" "oldname" -- ) CREATE ' , DOES> @ EXECUTE ;
+ALIAS NB. \
 
 \ Run a word or compile it into the current definition based on STATE
 : RUN-OR-COMPILE ( xt -- )
