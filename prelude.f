@@ -21,15 +21,14 @@
 
 \ Now we have line comments too!
 
+: FORGETLAST LATEST @ DUP W>LINK LATEST ! HERE ! ;
+
 \ Words for entering compile mode for immediate execution
 \ State 0 = interpret, 1 = compile
 : [ 0 STATE ! ; IMMEDIATE
 : ] 1 STATE ! ;
 : [: :NONAME ; IMMEDIATE
-: ;] POSTPONE EXIT POSTPONE [ EXECUTE
-  \ Now, reset HERE and LATEST
-  LATEST @ DUP W>LINK LATEST ! HERE !
-  ; IMMEDIATE
+: ;] POSTPONE EXIT POSTPONE [ EXECUTE FORGETLAST ; IMMEDIATE
 
 \ Cheap word for creating aliases
 : ALIAS ( "newname" "oldname" -- ) CREATE ' , DOES> @ EXECUTE ;
