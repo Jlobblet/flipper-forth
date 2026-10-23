@@ -26,7 +26,10 @@
 : [ 0 STATE ! ; IMMEDIATE
 : ] 1 STATE ! ;
 : [: :NONAME ; IMMEDIATE
-: ;] POSTPONE EXIT POSTPONE [ EXECUTE ; IMMEDIATE
+: ;] POSTPONE EXIT POSTPONE [ EXECUTE
+  \ Now, reset HERE and LATEST
+  LATEST @ DUP W>LINK LATEST ! HERE !
+  ; IMMEDIATE
 
 \ Cheap word for creating aliases
 : ALIAS ( "newname" "oldname" -- ) CREATE ' , DOES> @ EXECUTE ;

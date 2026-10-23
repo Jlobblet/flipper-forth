@@ -615,6 +615,10 @@
             w = w->link;
         }
         NEXT();
+    // ( xt -- addr )
+    do_w_to_link:
+        *(dsp - 1) = (cell)((word_t *)*(dsp - 1))->link;
+        NEXT();
 
     // Memory
     // ------

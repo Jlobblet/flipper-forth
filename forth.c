@@ -601,6 +601,7 @@ run(void) {
     create_header("FIND", 4, &&do_find);
     create_header("SEE", 3, &&do_see);
     create_header("WORDS", 5, &&do_words);
+    create_header("W>LINK", 6, &&do_w_to_link);
 
     // Memory
     create_header("ALIGN", 5, &&do_align);
